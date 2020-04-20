@@ -60,6 +60,12 @@
                             <td><?= htmlReady($meeting['moderator_count']) ?></td>
                         </tr>
                     <? endforeach ?>
+                <? elseif($result['server_unavailable']) : ?>
+                    <tr>
+                        <td colspan="<?= $cols ?>" style="text-align: center">
+                            <?= MessageBox::error(htmlReady($result['server_unavailable']))?>
+                        </td>
+                    </tr>
                 <? else : ?>
                     <tr>
                         <td colspan="<?= $cols ?>" style="text-align: center"><?= _('Aktuell keine Meetings') ?></td>

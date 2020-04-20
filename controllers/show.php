@@ -19,31 +19,36 @@ class ShowController extends Controller
     {
         Navigation::activateItem('/simplebbbconnector/overview/index');
         PageLayout::setTitle(_('Serverübersicht'));
-        $servers = Server::findBySQL('1 ORDER BY `mkdate`');
+        $servers = Server::findBySQL('1 ORDER BY `name`, `mkdate`');
 
         $results          = [];
         $all_participants = 0;
         $all_meetings     = 0;
         foreach ($servers as $server) {
             $result                     = ['server' => $server];
-            $client                     = HttpClient::create();
-            $response                   = $client->request('POST', $server->getAPIURL());
-            $meetings                   = new SimpleXMLElement($response->getContent());
-            $result['complete_ounter']  = count($meetings->meetings->meeting);
             $complete_participant_count = 0;
-            foreach ($meetings->meetings->meeting as $meeting) {
-                $all_meetings++;
-                $result['meetings'][]       =
-                    [
-                        'meeting_id'              => (string)$meeting->meetingID,
-                        'meeting_name'            => (string)$meeting->meetingName,
-                        'participant_count'       => (string)$meeting->participantCount,
-                        'video_count'             => (int)$meeting->videoCount,
-                        'listener_count'          => (int)$meeting->listenerCount,
-                        'voice_participant_count' => (int)$meeting->voiceParticipantCount,
-                        'moderator_count'         => (int)$meeting->moderatorCount,
-                    ];
-                $complete_participant_count += (int)$meeting->participantCount;
+            try {
+                $client                    = HttpClient::create();
+                $response                  = $client->request('POST', $server->getAPIURL());
+                $meetings                  = new SimpleXMLElement($response->getContent());
+                $result['complete_ounter'] = count($meetings->meetings->meeting);
+
+                foreach ($meetings->meetings->meeting as $meeting) {
+                    $all_meetings++;
+                    $result['meetings'][]       =
+                        [
+                            'meeting_id'              => (string)$meeting->meetingID,
+                            'meeting_name'            => (string)$meeting->meetingName,
+                            'participant_count'       => (string)$meeting->participantCount,
+                            'video_count'             => (int)$meeting->videoCount,
+                            'listener_count'          => (int)$meeting->listenerCount,
+                            'voice_participant_count' => (int)$meeting->voiceParticipantCount,
+                            'moderator_count'         => (int)$meeting->moderatorCount,
+                        ];
+                    $complete_participant_count += (int)$meeting->participantCount;
+                }
+            } catch(Symfony\Component\HttpClient\Exception\TransportException $e) {
+                $result['server_unavailable'] = $e->getMessage();
             }
             $all_participants                     += $complete_participant_count;
             $result['complete_participant_count'] = $complete_participant_count;
