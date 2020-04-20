@@ -29,9 +29,8 @@ class SettingsController extends Controller
     public function store_action(Server $server = null)
     {
         CSRFProtection::verifyUnsafeRequest();
-
         $data = [
-            'url'    => Request::get('url'),
+            'url'    => trim(Request::get('url'), '/api'). '/api',
             'name'   => Request::get('name'),
             'secret' => Request::get('secret')
         ];
