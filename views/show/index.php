@@ -24,7 +24,7 @@
                 </caption>
                 <colgroup>
                     <? if ($GLOBALS['perm']->have_perm('root')) : ?>
-                    <col style="width: 20%">
+                    <col style="width: 180px">
                     <col style="width: 30%">
                     <? else : ?>
                         <col style="width: 50%">
