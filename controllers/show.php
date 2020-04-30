@@ -18,7 +18,7 @@ class ShowController extends Controller
     public function index_action()
     {
         Navigation::activateItem('/simplebbbconnector/overview/index');
-        PageLayout::setTitle(_('BigBlueButton-Connector'));
+        PageLayout::setTitle(_('Serverübersicht'));
         $servers = Server::findBySQL('1 ORDER BY CAST(`name` AS unsigned), `mkdate`');
 
         $results          = [];
@@ -83,7 +83,8 @@ class ShowController extends Controller
             } else {
                 $category_name = _('Allgemein');
             }
-            $results[$category_name][] = $result;
+            $results[$category_name]['category_participant_count'] += $complete_participant_count;
+            $results[$category_name]['results'][] = $result;
         }
 
         $this->all_participants = $all_participants;

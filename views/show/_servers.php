@@ -1,5 +1,4 @@
 <? foreach ($servers as $result) : ?>
-
     <table class="default">
         <caption>
             <?= htmlReady($result['server']->name) ?>
@@ -23,27 +22,27 @@
         </caption>
         <colgroup>
             <? if ($plugin->meeting_plugin_installed) : ?>
-                <col style="width: 20%">
-                <col style="width: 30%">
+                <col style="width: 40%">
+                <col style="width: 35%">
             <? else : ?>
-                <col style="width: 50%">
+                <col style="width: 75%">
             <? endif ?>
-            <col style="width: 10%">
-            <col style="width: 10%">
-            <col style="width: 10%">
-            <col style="width: 10%">
-            <col style="width: 10%">
+            <col style="width: 5%">
+            <col style="width: 5%">
+            <col style="width: 5%">
+            <col style="width: 5%">
+            <col style="width: 5%">
         </colgroup>
         <tr>
             <th><?= _('Meeting-Name') ?></th>
             <? if ($plugin->meeting_plugin_installed) : ?>
                 <th><?= _('Veranstaltung') ?></th>
             <? endif ?>
-            <th><?= _('# Teilnehmer') ?></th>
-            <th><?= _('# Webcams') ?></th>
-            <th><?= _('# Zuhörer') ?></th>
-            <th><?= _('# Audio') ?></th>
-            <th><?= _('# Moderatoren') ?></th>
+            <th style="text-align: center"><?= _('# TN') ?></th>
+            <th style="text-align: center"><?= _('# Cam') ?></th>
+            <th style="text-align: center"><?= _('# Zuhörer') ?></th>
+            <th style="text-align: center"><?= _('# Audio') ?></th>
+            <th style="text-align: center"><?= _('# Mods') ?></th>
         </tr>
         <? if (!empty($result['meetings']))  : ?>
             <? foreach ($result['meetings'] as $meeting) : ?>
@@ -62,11 +61,11 @@
         <? endif ?>
         <tfoot>
             <td <?= $plugin->meeting_plugin_installed ? 'colspan="2"' : '' ?>></td>
-            <td><?= $result['complete_participant_count'] ?></td>
-            <td><?= $result['complete_video_count'] ?></td>
-            <td><?= $result['complete_listener_count'] ?></td>
-            <td><?= $result['complete_voice_participant_count'] ?></td>
-            <td><?= $result['complete_moderator_count'] ?></td>
+            <td style="text-align: center"><?= $result['complete_participant_count'] ?></td>
+            <td style="text-align: center"><?= $result['complete_video_count'] ?></td>
+            <td style="text-align: center"><?= $result['complete_listener_count'] ?></td>
+            <td style="text-align: center"><?= $result['complete_voice_participant_count'] ?></td>
+            <td style="text-align: center"><?= $result['complete_moderator_count'] ?></td>
         </tfoot>
     </table>
 <? endforeach ?>

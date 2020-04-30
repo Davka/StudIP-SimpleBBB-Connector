@@ -2,25 +2,22 @@
 <form method="post">
     <?= CSRFProtection::tokenTag(); ?>
     <? if (!empty($results)) : ?>
-        <section class="contentbox">
-            <header>
-                <h1><?= _('Serverübersicht') ?></h1>
-            </header>
-            <? foreach ($results as $category_name => $servers) : ?>
-                <article class="<?= ContentBoxHelper::classes(md5($category_name)) ?> open">
-                    <header>
-                        <h1>
-                            <a href="<?= ContentBoxHelper::href(md5($category_name)) ?>">
-                                <?= htmlReady($category_name) ?>
-                            </a>
-                        </h1>
-                    </header>
-                    <section>
-                        <?= $this->render_partial('show/_servers.php', compact('servers', 'category_name')) ?>
-                    </section>
-                </article>
-            <? endforeach ?>
-        </section>
+        <? $counter = 0 ?>
+        <? $count = count($results) ?>
+        <? foreach ($results as $category_name => $data) : ?>
+            <article class="studip toggle <?= ($counter == 0 || $count === 1) ? 'open' : '' ?>">
+                <header>
+                    <h1>
+                        <a><?= htmlReady($category_name) ?> - <?= sprintf(_('%s TeilnehmerInnen'), $data['category_participant_count'])?></a>
+                    </h1>
+                </header>
+                <section>
+                    <? $servers = $data['results']?>
+                    <?= $this->render_partial('show/_servers.php', compact('servers', 'category_name')) ?>
+                </section>
+            </article>
+            <? $counter++ ?>
+        <? endforeach ?>
     <? else : ?>
         <?= MessageBox::info(_('Bisher noch keine Server eingetragen')) ?>
     <? endif ?>

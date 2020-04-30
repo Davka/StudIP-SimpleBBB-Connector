@@ -3,15 +3,18 @@
     <? if ($plugin->meeting_plugin_installed) : ?>
         <td>
             <? if ($meeting['course']) : ?>
-                <?= htmlReady($meeting['course']->getFullname()) ?>
+                <a href="<?= URLHelper::getLink('dispatch.php/course/details/index/' . $meeting['course']->id) ?>"
+                   data-dialog="size=auto">
+                    <?= htmlReady($meeting['course']->getFullname()) ?>
+                </a>
             <? else : ?>
                 <?= _('Keine Angabe') ?>
             <? endif ?>
         </td>
     <? endif ?>
-    <td><?= htmlReady($meeting['participant_count']) ?></td>
-    <td><?= htmlReady($meeting['video_count']) ?></td>
-    <td><?= htmlReady($meeting['listener_count']) ?></td>
-    <td><?= htmlReady($meeting['voice_participant_count']) ?></td>
-    <td><?= htmlReady($meeting['moderator_count']) ?></td>
+    <td style="text-align: center"><?= htmlReady($meeting['participant_count']) ?></td>
+    <td style="text-align: center"><?= htmlReady($meeting['video_count']) ?></td>
+    <td style="text-align: center"><?= htmlReady($meeting['listener_count']) ?></td>
+    <td style="text-align: center"><?= htmlReady($meeting['voice_participant_count']) ?></td>
+    <td style="text-align: center"><?= htmlReady($meeting['moderator_count']) ?></td>
 </tr>
