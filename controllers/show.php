@@ -38,6 +38,7 @@ class ShowController extends Controller
                 $client   = HttpClient::create();
                 $response = $client->request('POST', $server->getAPIURL());
                 $meetings = new SimpleXMLElement($response->getContent());
+
                 if (!empty($meetings->meetings->meeting)) {
                     $result['complete_ounter'] = count($meetings->meetings->meeting);
 
@@ -52,7 +53,6 @@ class ShowController extends Controller
                                 [(string)$meeting->meetingID]
                             );
                         }
-
                         $result['meetings'][] =
                             [
                                 'meeting_id'              => (string)$meeting->meetingID,
@@ -63,6 +63,7 @@ class ShowController extends Controller
                                 'voice_participant_count' => (int)$meeting->voiceParticipantCount,
                                 'moderator_count'         => (int)$meeting->moderatorCount,
                                 'moderator_pw'            => (string)$meeting->moderatorPW,
+                                'is_break_out'            => (string)$meeting->isBreakout === true,
                                 'course'                  => $course
                             ];
 

@@ -7,8 +7,10 @@
                    data-dialog="size=auto">
                     <?= htmlReady($meeting['course']->getFullname()) ?>
                 </a>
-            <? else : ?>
-                <?= _('Keine Angabe') ?>
+            <? elseif ($meeting['is_break_out']): ?>
+                <?= _('Breakout-Raum')?>
+            <? else :?>
+            <?= _('Keine Angabe') ?>
             <? endif ?>
         </td>
     <? endif ?>
