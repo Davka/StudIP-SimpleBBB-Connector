@@ -18,6 +18,17 @@
         </span>
         <input type="text" name="secret" value="<?= $server ? htmlReady($server->secret) : '' ?>" required>
     </label>
+    <label>
+        <?= _('Kategorie') ?>
+        <select name="category_id">
+            <option><?= _('Bitte wählen') ?></option>
+            <? foreach ($categories as $category): ?>
+                <option value="<?= $category->id ?>" <?= $server && $server->category_id == $category->id ? 'selected' : '' ?>>
+                    <?= htmlReady($category->name) ?>
+                </option>
+            <? endforeach ?>
+        </select>
+    </label>
     <footer data-dialog-button>
         <?= Studip\Button::create(_('Speichern')) ?>
     </footer>

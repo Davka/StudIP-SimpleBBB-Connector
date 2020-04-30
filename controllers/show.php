@@ -10,7 +10,7 @@ class ShowController extends Controller
     {
         parent::before_filter($action, $args);
 
-        if($GLOBALS['perm']->have_perm('root')) {
+        if ($GLOBALS['perm']->have_perm('root')) {
             $this->buildSidebar();
         }
     }
@@ -18,7 +18,7 @@ class ShowController extends Controller
     public function index_action()
     {
         Navigation::activateItem('/simplebbbconnector/overview/index');
-        PageLayout::setTitle(_('Serverübersicht'));
+        PageLayout::setTitle(_('BigBlueButton-Connector'));
         $servers = Server::findBySQL('1 ORDER BY CAST(`name` AS unsigned), `mkdate`');
 
         $results          = [];
@@ -26,18 +26,32 @@ class ShowController extends Controller
         $all_meetings     = 0;
 
         foreach ($servers as $server) {
-            $result                     = ['server' => $server];
-            $complete_participant_count = 0;
+            $result                           = ['server' => $server];
+            $complete_participant_count       = 0;
+            $complete_video_count             = 0;
+            $complete_listener_count          = 0;
+            $complete_voice_participant_count = 0;
+            $complete_moderator_count         = 0;
             try {
-                $client                    = HttpClient::create();
-                $response                  = $client->request('POST', $server->getAPIURL());
-                $meetings                  = new SimpleXMLElement($response->getContent());
-                if(!empty($meetings->meetings->meeting)) {
+                $client   = HttpClient::create();
+                $response = $client->request('POST', $server->getAPIURL());
+                $meetings = new SimpleXMLElement($response->getContent());
+                if (!empty($meetings->meetings->meeting)) {
                     $result['complete_ounter'] = count($meetings->meetings->meeting);
 
                     foreach ($meetings->meetings->meeting as $meeting) {
                         $all_meetings++;
-                        $result['meetings'][]       =
+                        $course = null;
+                        if ($this->plugin->meeting_plugin_installed) {
+                            $course = \Course::findOneBySQL(
+                                'JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id 
+                                JOIN vc_meetings vm ON vm.id = vmc.meeting_id
+                                WHERE vm.remote_id = ?',
+                                [(string)$meeting->meetingID]
+                            );
+                        }
+
+                        $result['meetings'][]             =
                             [
                                 'meeting_id'              => (string)$meeting->meetingID,
                                 'meeting_name'            => (string)$meeting->meetingName,
@@ -46,18 +60,32 @@ class ShowController extends Controller
                                 'listener_count'          => (int)$meeting->listenerCount,
                                 'voice_participant_count' => (int)$meeting->voiceParticipantCount,
                                 'moderator_count'         => (int)$meeting->moderatorCount,
+                                'course'                  => $course
                             ];
-                        $complete_participant_count += (int)$meeting->participantCount;
+                        $complete_participant_count       += (int)$meeting->participantCount;
+                        $complete_video_count             += (int)$meeting->videoCount;
+                        $complete_listener_count          += (int)$meeting->listenerCount;
+                        $complete_voice_participant_count += (int)$meeting->voiceParticipantCount;
+                        $complete_moderator_count         += (int)$meeting->moderatorCount;
                     }
                 }
-            } catch(Symfony\Component\HttpClient\Exception\TransportException $e) {
+            } catch (Symfony\Component\HttpClient\Exception\TransportException $e) {
                 $result['server_unavailable'] = $e->getMessage();
             }
-            $all_participants                     += $complete_participant_count;
-            $result['complete_participant_count'] = $complete_participant_count;
-
-            $results[] = $result;
+            $all_participants                           += $complete_participant_count;
+            $result['complete_participant_count']       = $complete_participant_count;
+            $result['complete_video_count']             = $complete_video_count;
+            $result['complete_listener_count']          = $complete_listener_count;
+            $result['complete_voice_participant_count'] = $complete_voice_participant_count;
+            $result['complete_moderator_count']         = $complete_moderator_count;
+            if ($server->category) {
+                $category_name = $server->category->name;
+            } else {
+                $category_name = _('Allgemein');
+            }
+            $results[$category_name][] = $result;
         }
+
         $this->all_participants = $all_participants;
         $this->all_meetings     = $all_meetings;
         $this->results          = $results;
@@ -81,8 +109,14 @@ class ShowController extends Controller
     {
         $actions = new ActionsWidget();
         $actions->addLink(
+            _('Server-Kategorien verwalten'),
+            $this->url_for('category/index'),
+            Icon::create('category'),
+            ['data-dialog' => 'size=auto']
+        );
+        $actions->addLink(
             _('Server hinzufügen'),
-            $this->url_for('settings/add'),
+            $this->url_for('server/add'),
             Icon::create('add'),
             ['data-dialog' => 'size=auto']
         );

@@ -9,6 +9,11 @@ class Server extends SimpleORMap
     protected static function configure($config = [])
     {
         $config['db_table'] = 'bigbluebutton_servers';
+
+        $config['belongs_to']['category'] = [
+            'class_name'  => 'Vec\\BBB\\Category',
+            'foreign_key' => 'category_id',
+        ];
         parent::configure($config);
     }
 

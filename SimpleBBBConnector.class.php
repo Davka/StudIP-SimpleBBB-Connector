@@ -3,9 +3,12 @@ require __DIR__ . '/bootstrap.php';
 
 class SimpleBBBConnector extends StudIPPlugin implements SystemPlugin
 {
+    public $meeting_plugin_installed;
+
     public function __construct()
     {
         parent::__construct();
+        $this->meeting_plugin_installed = PluginEngine::getPlugin('MeetingPlugin') !== null;
 
         $navigation = new Navigation(_('BigBlueButton'));
         $navigation->setURL(PluginEngine::getURL($this, [], 'show/index'));
