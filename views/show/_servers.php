@@ -45,7 +45,7 @@
             <th style="text-align: center"><?= _('# Audio') ?></th>
             <th style="text-align: center"><?= _('# Mods') ?></th>
             <? if ($GLOBALS['perm']->have_perm('root')) : ?>
-                <th class="actions"><?= _('# Mods') ?></th>
+                <th class="actions"><?= _('Aktion') ?></th>
             <? endif ?>
         </tr>
         <? if (!empty($result['meetings']))  : ?>
