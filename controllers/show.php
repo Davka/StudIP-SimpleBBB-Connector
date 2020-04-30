@@ -52,7 +52,7 @@ class ShowController extends Controller
                                 WHERE vm.remote_id = ?',
                                 [(string)$meeting->meetingID]
                             );
-                        }
+                        };
                         $result['meetings'][] =
                             [
                                 'meeting_id'              => (string)$meeting->meetingID,
@@ -63,7 +63,7 @@ class ShowController extends Controller
                                 'voice_participant_count' => (int)$meeting->voiceParticipantCount,
                                 'moderator_count'         => (int)$meeting->moderatorCount,
                                 'moderator_pw'            => (string)$meeting->moderatorPW,
-                                'is_break_out'            => (string)$meeting->isBreakout === true,
+                                'is_break_out'            => (string)$meeting->isBreakout === "true",
                                 'course'                  => $course
                             ];
 
