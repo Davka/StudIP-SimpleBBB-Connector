@@ -1,4 +1,5 @@
-<form method="post" action="<?= $controller->store($category ?: null) ?>" class="default" data-dialog="size=auto">
+<form method="post" action="<?= $controller->url_for('category/store/' . ($category ? $category->id : '')) ?>"
+      class="default" data-dialog="size=auto">
     <?= CSRFProtection::tokenTag() ?>
     <label>
         <span class="required">
@@ -9,9 +10,9 @@
     <footer data-dialog-button>
         <?= Studip\Button::create(_('Speichern')) ?>
         <?= Studip\LinkButton::create(
-                _('Zur Übersicht'),
-                $controller->index(),
-                ['data-dialog' => 'size=auto']
-        )?>
+            _('Zur Übersicht'),
+            $controller->url_for('category/index'),
+            ['data-dialog' => 'size=auto']
+        ) ?>
     </footer>
 </form>

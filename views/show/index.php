@@ -8,8 +8,17 @@
             <article class="studip toggle <?= ($counter == 0 || $count === 1) ? 'open' : '' ?>">
                 <header>
                     <h1>
-                        <a><?= htmlReady($category_name) ?> - <?= sprintf(_('%s TeilnehmerInnen'), $data['category_participant_count'])?></a>
+                        <a><?= htmlReady($category_name) ?></a>
                     </h1>
+                    <nav>
+                        <ul class="bbb-list">
+                            <li><?= sprintf(_('%s TeilnehmerInnen'), $data['category_participant_count'])?></li>
+                            <li><?= sprintf(_('%s Webcams'), $data['category_video_count'])?></li>
+                            <li><?= sprintf(_('%s ZuhörerInnen'), $data['category_listener_count'])?></li>
+                            <li><?= sprintf(_('%s Audio'), $data['category_voice_participant_count'])?></li>
+                            <li><?= sprintf(_('%s ModeratorenInnen'), $data['category_moderator_count'])?></li>
+                        </ul>
+                    </nav>
                 </header>
                 <section>
                     <? $servers = $data['results']?>

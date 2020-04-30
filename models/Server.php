@@ -24,7 +24,25 @@ class Server extends SimpleORMap
 
     public function getAPIURL(string $apiRoute = "getMeetings"): string
     {
-        $checksum = $this->getChecksum($apiRoute, http_build_query([]));
+        $checksum = $this->getChecksum($apiRoute, $this->getQueryBuild());
         return $this->url . "/{$apiRoute}?checksum={$checksum}";
+    }
+
+    public function getCancelURL(string $meetingID, string $moderatorPassword): string
+    {
+        $params     = [
+            'meetingID' => $meetingID,
+            'password'  => $moderatorPassword,
+            'redirect'  => true,
+        ];
+        $queryBuild = $this->getQueryBuild($params);
+        $checkSum   = $this->getChecksum('end', $queryBuild);
+        return $this->url . "/end?{$queryBuild}&checksum={$checkSum}";
+    }
+
+
+    private function getQueryBuild(array $params = [])
+    {
+        return http_build_query($params);
     }
 }

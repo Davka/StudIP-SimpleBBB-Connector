@@ -6,15 +6,16 @@
                 <? $cols++ ?>
             <? endif ?>
             <? if ($GLOBALS['perm']->have_perm('root')) : ?>
+            <? $cols++?>
                 <span class="actions">
-                        <a href="<?= $controller->url_for('server/edit', $result['server']) ?>"
+                        <a href="<?= $controller->url_for('server/edit/' . $result['server']->id) ?>"
                            data-dialog="size=auto">
                             <?= Icon::create('edit') ?>
                         </a>
                         <?= Icon::create('trash')->asInput(
                             [
                                 'data-confirm' => _('Wollen Sie den Server wirklich löschen?'),
-                                'formaction'   => $controller->url_for('server/delete', $result['server'])
+                                'formaction'   => $controller->url_for('server/delete/' . $result['server']->id)
                             ]
                         ) ?>
                         </span>
@@ -43,10 +44,13 @@
             <th style="text-align: center"><?= _('# Zuhörer') ?></th>
             <th style="text-align: center"><?= _('# Audio') ?></th>
             <th style="text-align: center"><?= _('# Mods') ?></th>
+            <? if ($GLOBALS['perm']->have_perm('root')) : ?>
+                <th class="actions"><?= _('# Mods') ?></th>
+            <? endif ?>
         </tr>
         <? if (!empty($result['meetings']))  : ?>
             <? foreach ($result['meetings'] as $meeting) : ?>
-                <?= $this->render_partial('show/_meeting.php', compact('meeting')) ?>
+                <?= $this->render_partial('show/_meeting.php', ['meeting' => $meeting, 'server' => $result['server']]) ?>
             <? endforeach ?>
         <? elseif ($result['server_unavailable']) : ?>
             <tr>
@@ -66,6 +70,7 @@
             <td style="text-align: center"><?= $result['complete_listener_count'] ?></td>
             <td style="text-align: center"><?= $result['complete_voice_participant_count'] ?></td>
             <td style="text-align: center"><?= $result['complete_moderator_count'] ?></td>
+            <td></td>
         </tfoot>
     </table>
 <? endforeach ?>

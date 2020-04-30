@@ -7,8 +7,6 @@ use Request;
 
 class Controller extends PluginController
 {
-    public $_autobind = true;
-
     public function render_template($template_name, $layout = null)
     {
         $layout_file = Request::isXhr()

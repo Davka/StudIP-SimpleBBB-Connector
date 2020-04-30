@@ -1,4 +1,4 @@
-<form method="post" action="<?= $controller->store($server ?: null) ?>" class="default">
+<form method="post" action="<?= $controller->url_for('server/store/' . ($server->id ?: '')) ?>" class="default">
     <?= CSRFProtection::tokenTag() ?>
     <label>
         <span class="required">

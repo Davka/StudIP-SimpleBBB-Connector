@@ -12,12 +12,12 @@
                 <tr>
                     <td><?= htmlReady($category->name) ?></td>
                     <td class="actions">
-                        <a href="<?= $controller->editURL($category) ?>" data-dialog="size=auto">
+                        <a href="<?= $controller->url_for('category/edit/' . $category->id) ?>" data-dialog="size=auto">
                             <?= Icon::create('edit') ?>
                         </a>
                         <?= Icon::create('trash')->asInput(
                             [
-                                'formaction'   => $controller->deleteURL($category),
+                                'formaction'   => $controller->url_for('category/delete/' . $category->id),
                                 'data-confirm' => _('Wollen Sie die Kategorie wirklich löschen?'),
                                 'data-dialog'  => 'size=auto'
                             ])
@@ -36,7 +36,7 @@
     <footer data-dialog-button>
         <?= Studip\LinkButton::create(
             _('Kategorie hinzufügen'),
-            $controller->add(),
+            $controller->url_for('category/add'),
             ['data-dialog' => 'size=auto']
         ) ?>
     </footer>

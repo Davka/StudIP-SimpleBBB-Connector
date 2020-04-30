@@ -19,7 +19,9 @@ class ShowController extends Controller
     {
         Navigation::activateItem('/simplebbbconnector/overview/index');
         PageLayout::setTitle(_('Serverübersicht'));
-        $servers = Server::findBySQL('1 ORDER BY CAST(`name` AS unsigned), `mkdate`');
+        $servers = SimpleORMapCollection::createFromArray(
+            Server::findBySQL('1')
+        )->orderBy('name');
 
         $results          = [];
         $all_participants = 0;
@@ -51,7 +53,7 @@ class ShowController extends Controller
                             );
                         }
 
-                        $result['meetings'][]             =
+                        $result['meetings'][] =
                             [
                                 'meeting_id'              => (string)$meeting->meetingID,
                                 'meeting_name'            => (string)$meeting->meetingName,
@@ -60,8 +62,10 @@ class ShowController extends Controller
                                 'listener_count'          => (int)$meeting->listenerCount,
                                 'voice_participant_count' => (int)$meeting->voiceParticipantCount,
                                 'moderator_count'         => (int)$meeting->moderatorCount,
+                                'moderator_pw'            => (string)$meeting->moderatorPW,
                                 'course'                  => $course
                             ];
+
                         $complete_participant_count       += (int)$meeting->participantCount;
                         $complete_video_count             += (int)$meeting->videoCount;
                         $complete_listener_count          += (int)$meeting->listenerCount;
@@ -83,9 +87,14 @@ class ShowController extends Controller
             } else {
                 $category_name = _('Allgemein');
             }
-            $results[$category_name]['category_participant_count'] += $complete_participant_count;
-            $results[$category_name]['results'][] = $result;
+            $results[$category_name]['category_participant_count']       += $complete_participant_count;
+            $results[$category_name]['category_video_count']             += $complete_video_count;
+            $results[$category_name]['category_listener_count']          += $complete_listener_count;
+            $results[$category_name]['category_voice_participant_count'] += $complete_voice_participant_count;
+            $results[$category_name]['category_moderator_count']         += $complete_moderator_count;
+            $results[$category_name]['results'][]                        = $result;
         }
+        ksort($results);
 
         $this->all_participants = $all_participants;
         $this->all_meetings     = $all_meetings;
