@@ -1,5 +1,10 @@
 <tr>
-    <td><?= htmlReady($meeting['meeting_name']) ?></td>
+    <td>
+        <?= htmlReady($meeting['meeting_name']) ?>
+        <? if ($GLOBALS['perm']->have_perm('root')) : ?>
+            <?= tooltipIcon(htmlReady($meeting['meeting_id']))?>
+        <? endif ?>
+    </td>
     <? if ($plugin->meeting_plugin_installed) : ?>
         <td>
             <? if ($meeting['course']) : ?>
@@ -8,9 +13,9 @@
                     <?= htmlReady($meeting['course']->getFullname()) ?>
                 </a>
             <? elseif ($meeting['is_break_out']): ?>
-                <?= _('Breakout-Raum')?>
-            <? else :?>
-            <?= _('Keine Angabe') ?>
+                <?= _('Breakout-Raum') ?>
+            <? else : ?>
+                <?= _('Keine Angabe') ?>
             <? endif ?>
         </td>
     <? endif ?>

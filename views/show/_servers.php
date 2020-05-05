@@ -1,5 +1,5 @@
 <? foreach ($servers as $result) : ?>
-    <table class="default">
+    <table class="default bbb-servers">
         <caption>
             <?= htmlReady($result['server']->name) ?>
             <? if ($plugin->meeting_plugin_installed) : ?>
