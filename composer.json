@@ -1,5 +1,6 @@
 {
+
     "require": {
-        "symfony/http-client": "^5.0"
+        "bigbluebutton/bigbluebutton-api-php": "~2.0.0"
     }
 }

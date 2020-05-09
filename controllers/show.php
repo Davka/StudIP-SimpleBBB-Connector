@@ -2,7 +2,7 @@
 
 use Vec\BBB\Controller;
 use Vec\BBB\Server;
-use Symfony\Component\HttpClient\HttpClient;
+use BigBlueButton\BigBlueButton;
 
 class ShowController extends Controller
 {
@@ -35,14 +35,17 @@ class ShowController extends Controller
             $complete_voice_participant_count = 0;
             $complete_moderator_count         = 0;
             try {
-                $client   = HttpClient::create();
-                $response = $client->request('POST', $server->getAPIURL());
-                $meetings = new SimpleXMLElement($response->getContent());
+                putenv("BBB_SECRET=" . $server->secret);
+                putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
 
-                if (!empty($meetings->meetings->meeting)) {
-                    $result['complete_ounter'] = count($meetings->meetings->meeting);
+                $bbb      = new BigBlueButton();
+                $response = $bbb->getMeetings();
+                $meetings = $response->getRawXml()->meetings->meeting;
 
-                    foreach ($meetings->meetings->meeting as $meeting) {
+                if (!empty($meetings)) {
+                    $result['complete_ounter'] = count($meetings);
+
+                    foreach ($meetings as $meeting) {
                         $all_meetings++;
                         $course = null;
                         if ($this->plugin->meeting_plugin_installed) {
@@ -95,6 +98,7 @@ class ShowController extends Controller
             $results[$category_name]['category_moderator_count']         += $complete_moderator_count;
             $results[$category_name]['results'][]                        = $result;
         }
+
         ksort($results);
 
         $this->all_participants = $all_participants;
