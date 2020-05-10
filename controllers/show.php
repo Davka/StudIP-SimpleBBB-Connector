@@ -34,52 +34,50 @@ class ShowController extends Controller
             $complete_listener_count          = 0;
             $complete_voice_participant_count = 0;
             $complete_moderator_count         = 0;
-            try {
-                putenv("BBB_SECRET=" . $server->secret);
-                putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
 
-                $bbb      = new BigBlueButton();
-                $response = $bbb->getMeetings();
-                $meetings = $response->getRawXml()->meetings->meeting;
+            putenv("BBB_SECRET=" . $server->secret);
+            putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
 
-                if (!empty($meetings)) {
-                    $result['complete_ounter'] = count($meetings);
+            $bbb      = new BigBlueButton();
+            $response = $bbb->getMeetings();
+            $meetings = $response->getRawXml()->meetings->meeting;
 
-                    foreach ($meetings as $meeting) {
-                        $all_meetings++;
-                        $course = null;
-                        if ($this->plugin->meeting_plugin_installed) {
-                            $course = \Course::findOneBySQL(
-                                'JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id 
+            if (!empty($meetings)) {
+                $result['complete_ounter'] = count($meetings);
+
+                foreach ($meetings as $meeting) {
+                    $all_meetings++;
+                    $course = null;
+                    if ($this->plugin->meeting_plugin_installed) {
+                        $course = \Course::findOneBySQL(
+                            'JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id 
                                 JOIN vc_meetings vm ON vm.id = vmc.meeting_id
                                 WHERE vm.remote_id = ?',
-                                [(string)$meeting->meetingID]
-                            );
-                        }
-                        $result['meetings'][] =
-                            [
-                                'meeting_id'              => (string)$meeting->meetingID,
-                                'meeting_name'            => (string)$meeting->meetingName,
-                                'participant_count'       => (string)$meeting->participantCount,
-                                'video_count'             => (int)$meeting->videoCount,
-                                'listener_count'          => (int)$meeting->listenerCount,
-                                'voice_participant_count' => (int)$meeting->voiceParticipantCount,
-                                'moderator_count'         => (int)$meeting->moderatorCount,
-                                'moderator_pw'            => (string)$meeting->moderatorPW,
-                                'is_break_out'            => (string)$meeting->isBreakout === "true",
-                                'course'                  => $course
-                            ];
-
-                        $complete_participant_count       += (int)$meeting->participantCount;
-                        $complete_video_count             += (int)$meeting->videoCount;
-                        $complete_listener_count          += (int)$meeting->listenerCount;
-                        $complete_voice_participant_count += (int)$meeting->voiceParticipantCount;
-                        $complete_moderator_count         += (int)$meeting->moderatorCount;
+                            [(string)$meeting->meetingID]
+                        );
                     }
+                    $result['meetings'][] =
+                        [
+                            'meeting_id'              => (string)$meeting->meetingID,
+                            'meeting_name'            => (string)$meeting->meetingName,
+                            'participant_count'       => (string)$meeting->participantCount,
+                            'video_count'             => (int)$meeting->videoCount,
+                            'listener_count'          => (int)$meeting->listenerCount,
+                            'voice_participant_count' => (int)$meeting->voiceParticipantCount,
+                            'moderator_count'         => (int)$meeting->moderatorCount,
+                            'moderator_pw'            => (string)$meeting->moderatorPW,
+                            'is_break_out'            => (string)$meeting->isBreakout === "true",
+                            'course'                  => $course
+                        ];
+
+                    $complete_participant_count       += (int)$meeting->participantCount;
+                    $complete_video_count             += (int)$meeting->videoCount;
+                    $complete_listener_count          += (int)$meeting->listenerCount;
+                    $complete_voice_participant_count += (int)$meeting->voiceParticipantCount;
+                    $complete_moderator_count         += (int)$meeting->moderatorCount;
                 }
-            } catch (Symfony\Component\HttpClient\Exception\TransportException $e) {
-                $result['server_unavailable'] = $e->getMessage();
             }
+
             $all_participants                           += $complete_participant_count;
             $result['complete_participant_count']       = $complete_participant_count;
             $result['complete_video_count']             = $complete_video_count;
@@ -97,6 +95,8 @@ class ShowController extends Controller
             $results[$category_name]['category_voice_participant_count'] += $complete_voice_participant_count;
             $results[$category_name]['category_moderator_count']         += $complete_moderator_count;
             $results[$category_name]['results'][]                        = $result;
+            putenv("BBB_SECRET");
+            putenv("BBB_SERVER_BASE_URL");
         }
 
         ksort($results);

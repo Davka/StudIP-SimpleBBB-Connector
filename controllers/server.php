@@ -3,6 +3,9 @@
 use Vec\BBB\Controller;
 use Vec\BBB\Server;
 use Vec\BBB\Category;
+use BigBlueButton\BigBlueButton;
+use BigBlueButton\Parameters\EndMeetingParameters;
+use BigBlueButton\Parameters\JoinMeetingParameters;
 
 class ServerController extends Controller
 {
@@ -61,18 +64,47 @@ class ServerController extends Controller
         $this->redirect('show/index');
     }
 
-    public function cancel_meeting_action($server_id, $meeting_id, $meeting_password)
+    public function join_meeting_action($server_id)
     {
-        $server   = Server::find($server_id);
-        $url      = $server->getCancelURL($meeting_id, $meeting_password);
-        $client   = HttpClient::create();
-        $response = $client->request('POST', $url);
-        $result   = new SimpleXMLElement($response->getContent());
-        if ((string)$result->returncode === 'SUCCESS') {
+        $server = Server::find($server_id);
+        putenv("BBB_SECRET=" . $server->secret);
+        putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
+        $bbb                 = new BigBlueButton();
+        $join_meeting_params = new JoinMeetingParameters(
+            Request::get('meeting_id'),
+            htmlReady($GLOBALS['user']->getFullname()),
+            Request::get('moderator_password')
+        );
+        $join_meeting_params->setRedirect(true);
+        $url = $bbb->getJoinMeetingURL($join_meeting_params);
+        putenv("BBB_SECRET");
+        putenv("BBB_SERVER_BASE_URL");
+        header('Status: 301 Moved Permanently', false, 301);
+        header('Location:' . $url);
+
+        die;
+    }
+
+    public function cancel_meeting_action($server_id)
+    {
+        CSRFProtection::verifyUnsafeRequest();
+        $server = Server::find($server_id);
+        putenv("BBB_SECRET=" . $server->secret);
+        putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
+        $bbb = new BigBlueButton();
+
+        $endMeetingParams = new EndMeetingParameters(
+            Request::get('meeting_id'), Request::get('moderator_password')
+        );
+
+        $response = $bbb->endMeeting($endMeetingParams);
+        if ($response->getReturnCode() == 'SUCCESS') {
             PageLayout::postSuccess(_('Das Meeting wurde erfolgreich beendet'));
         } else {
-            PageLayout::postError(_('Das Meeting konnte nicht beendet werden'), [(string)$result->message]);
+            PageLayout::postError(_('Das Meeting konnte nicht beendet werden'), [$response->getMessage()]);
         }
+        putenv("BBB_SECRET");
+        putenv("BBB_SERVER_BASE_URL");
         $this->redirect('show/index');
     }
 }

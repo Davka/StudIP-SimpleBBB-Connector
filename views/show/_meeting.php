@@ -2,7 +2,7 @@
     <td>
         <?= htmlReady($meeting['meeting_name']) ?>
         <? if ($GLOBALS['perm']->have_perm('root')) : ?>
-            <?= tooltipIcon(htmlReady($meeting['meeting_id']))?>
+            <?= tooltipIcon(htmlReady($meeting['meeting_id'])) ?>
         <? endif ?>
     </td>
     <? if ($plugin->meeting_plugin_installed) : ?>
@@ -26,14 +26,28 @@
     <td style="text-align: center"><?= htmlReady($meeting['moderator_count']) ?></td>
     <? if ($GLOBALS['perm']->have_perm('root')): ?>
         <td class="actions">
-            <a data-confirm="<?= sprintf(
-                _('Sind Sie sicher, dass Sie das Meeting %s beenden wollen'),
-                htmlReady($meeting['meeting_name'])
-            );
-            ?>"
-               href="<?= $controller->url_for('server/cancel_meeting/' . $server->id . '/' . $meeting['meeting_id'] . '/' . $meeting['moderator_pw']) ?>">
-                <?= Icon::create('trash') ?>
+            <a href="<?= $controller->url_for('server/join_meeting/' . $server->id,
+                [
+                    'meeting_id'         => $meeting['meeting_id'],
+                    'moderator_password' => $meeting['moderator_pw']
+                ]
+            ) ?>" target="_blank">
+                <?= Icon::create('door-enter') ?>
             </a>
+            <?= Icon::create('trash')->asInput(
+                [
+                    'data-confirm' => sprintf(
+                        _('Sind Sie sicher, dass Sie das Meeting %s beenden wollen'),
+                        htmlReady($meeting['meeting_name'])
+                    ),
+                    'formaction'   => $controller->url_for('server/cancel_meeting/' . $server->id,
+                        [
+                            'meeting_id'         => $meeting['meeting_id'],
+                            'moderator_password' => $meeting['moderator_pw']
+                        ]
+                    )
+                ]
+            ) ?>
         </td>
     <? endif ?>
 </tr>
