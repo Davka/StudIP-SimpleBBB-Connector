@@ -26,28 +26,36 @@
     <td style="text-align: center"><?= htmlReady($meeting['moderator_count']) ?></td>
     <? if ($GLOBALS['perm']->have_perm('root')): ?>
         <td class="actions">
-            <a href="<?= $controller->url_for('server/join_meeting/' . $server->id,
-                [
-                    'meeting_id'         => $meeting['meeting_id'],
-                    'moderator_password' => $meeting['moderator_pw']
-                ]
-            ) ?>" target="_blank">
-                <?= Icon::create('door-enter') ?>
-            </a>
-            <?= Icon::create('trash')->asInput(
-                [
-                    'data-confirm' => sprintf(
-                        _('Sind Sie sicher, dass Sie das Meeting %s beenden wollen'),
-                        htmlReady($meeting['meeting_name'])
-                    ),
-                    'formaction'   => $controller->url_for('server/cancel_meeting/' . $server->id,
-                        [
-                            'meeting_id'         => $meeting['meeting_id'],
-                            'moderator_password' => $meeting['moderator_pw']
-                        ]
-                    )
-                ]
-            ) ?>
+            <?= ActionMenu::get()->
+            addLink(
+                $controller->url_for('server/join_meeting/' . $server->id,
+                    [
+                        'meeting_id'         => $meeting['meeting_id'],
+                        'moderator_password' => $meeting['moderator_pw']
+                    ]
+                ),
+                _('Das Meeting beitreten'),
+                Icon::create('door-enter'),
+                ['target' => '_blank']
+            )
+                ->addButton(
+                    'cancel_meeting',
+                    _('Das Meeting beenden'),
+                    Icon::create('trash'),
+                    [
+                        'data-confirm' => sprintf(
+                            _('Sind Sie sicher, dass Sie das Meeting %s beenden wollen'),
+                            htmlReady($meeting['meeting_name'])
+                        ),
+                        'formaction'   => $controller->url_for('server/cancel_meeting/' . $server->id,
+                            [
+                                'meeting_id'         => $meeting['meeting_id'],
+                                'moderator_password' => $meeting['moderator_pw']
+                            ]
+                        )
+                    ]
+                )->render()
+            ?>
         </td>
     <? endif ?>
 </tr>
