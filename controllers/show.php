@@ -114,7 +114,7 @@ class ShowController extends Controller
         );
         $infos->addElement(
             new WidgetElement(
-                '<p>' . sprintf(_('%u TeilnehmerInnen'), $all_participants) . '</p>'
+                '<p>' . sprintf(_('%u TeilnehmerInnen (aktuell)'), $all_participants) . '</p>'
             )
         );
 
@@ -124,7 +124,7 @@ class ShowController extends Controller
             );
             $infos->addElement(
                 new WidgetElement(
-                    '<p>' . sprintf(_('%u Meetingräume'), $meetings_counter) . '</p>'
+                    '<p>' . sprintf(_('%u Meetingräume (insges)'), $meetings_counter) . '</p>'
                 )
             );
         }
