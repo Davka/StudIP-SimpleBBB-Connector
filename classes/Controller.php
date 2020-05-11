@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author  David Siegfried <david.siegfried@uni-vechta.de>
+ * @license GPL2 or any later version
+ */
 
 namespace Vec\BBB;
 
@@ -7,8 +11,6 @@ use Request;
 
 class Controller extends PluginController
 {
-    public $_autobind = true;
-
     public function render_template($template_name, $layout = null)
     {
         $layout_file = Request::isXhr()

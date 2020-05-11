@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author  David Siegfried <david.siegfried@uni-vechta.de>
+ * @license GPL2 or any later version
+ */
 
 namespace Vec\BBB;
 
@@ -9,6 +13,11 @@ class Server extends SimpleORMap
     protected static function configure($config = [])
     {
         $config['db_table'] = 'bigbluebutton_servers';
+
+        $config['belongs_to']['category'] = [
+            'class_name'  => 'Vec\\BBB\\Category',
+            'foreign_key' => 'category_id',
+        ];
         parent::configure($config);
     }
 
@@ -19,7 +28,25 @@ class Server extends SimpleORMap
 
     public function getAPIURL(string $apiRoute = "getMeetings"): string
     {
-        $checksum = $this->getChecksum($apiRoute, http_build_query([]));
+        $checksum = $this->getChecksum($apiRoute, $this->getQueryBuild());
         return $this->url . "/{$apiRoute}?checksum={$checksum}";
+    }
+
+    public function getCancelURL(string $meetingID, string $moderatorPassword): string
+    {
+        $params     = [
+            'meetingID' => $meetingID,
+            'password'  => $moderatorPassword,
+            'redirect'  => true,
+        ];
+        $queryBuild = $this->getQueryBuild($params);
+        $checkSum   = $this->getChecksum('end', $queryBuild);
+        return $this->url . "/end?{$queryBuild}&checksum={$checkSum}";
+    }
+
+
+    private function getQueryBuild(array $params = [])
+    {
+        return http_build_query($params);
     }
 }

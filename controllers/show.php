@@ -1,8 +1,13 @@
 <?php
+/**
+ * @author  David Siegfried <david.siegfried@uni-vechta.de>
+ * @license GPL2 or any later version
+ */
 
 use Vec\BBB\Controller;
+use Vec\BBB\GreenlightConnection;
 use Vec\BBB\Server;
-use Symfony\Component\HttpClient\HttpClient;
+use BigBlueButton\BigBlueButton;
 
 class ShowController extends Controller
 {
@@ -10,7 +15,7 @@ class ShowController extends Controller
     {
         parent::before_filter($action, $args);
 
-        if($GLOBALS['perm']->have_perm('root')) {
+        if ($GLOBALS['perm']->have_perm('root')) {
             $this->buildSidebar();
         }
     }
@@ -19,45 +24,88 @@ class ShowController extends Controller
     {
         Navigation::activateItem('/simplebbbconnector/overview/index');
         PageLayout::setTitle(_('Serverübersicht'));
-        $servers = Server::findBySQL('1 ORDER BY CAST(`name` AS unsigned), `mkdate`');
+        $servers = SimpleORMapCollection::createFromArray(
+            Server::findBySQL('1')
+        )->orderBy('name');
 
         $results          = [];
         $all_participants = 0;
         $all_meetings     = 0;
 
         foreach ($servers as $server) {
-            $result                     = ['server' => $server];
-            $complete_participant_count = 0;
-            try {
-                $client                    = HttpClient::create();
-                $response                  = $client->request('POST', $server->getAPIURL());
-                $meetings                  = new SimpleXMLElement($response->getContent());
-                if(!empty($meetings->meetings->meeting)) {
-                    $result['complete_ounter'] = count($meetings->meetings->meeting);
+            $result                           = ['server' => $server];
+            $complete_participant_count       = 0;
+            $complete_video_count             = 0;
+            $complete_listener_count          = 0;
+            $complete_voice_participant_count = 0;
+            $complete_moderator_count         = 0;
 
-                    foreach ($meetings->meetings->meeting as $meeting) {
-                        $all_meetings++;
-                        $result['meetings'][]       =
-                            [
-                                'meeting_id'              => (string)$meeting->meetingID,
-                                'meeting_name'            => (string)$meeting->meetingName,
-                                'participant_count'       => (string)$meeting->participantCount,
-                                'video_count'             => (int)$meeting->videoCount,
-                                'listener_count'          => (int)$meeting->listenerCount,
-                                'voice_participant_count' => (int)$meeting->voiceParticipantCount,
-                                'moderator_count'         => (int)$meeting->moderatorCount,
-                            ];
-                        $complete_participant_count += (int)$meeting->participantCount;
+            putenv("BBB_SECRET=" . $server->secret);
+            putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
+
+            $bbb      = new BigBlueButton();
+            $response = $bbb->getMeetings();
+            $meetings = $response->getRawXml()->meetings->meeting;
+
+            if (!empty($meetings)) {
+                $result['complete_ounter'] = count($meetings);
+
+                foreach ($meetings as $meeting) {
+                    $all_meetings++;
+                    $course = null;
+                    if ($this->plugin->meeting_plugin_installed) {
+                        $course = \Course::findOneBySQL(
+                            'JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id 
+                                JOIN vc_meetings vm ON vm.id = vmc.meeting_id
+                                WHERE vm.remote_id = ?',
+                            [(string)$meeting->meetingID]
+                        );
                     }
-                }
-            } catch(Symfony\Component\HttpClient\Exception\TransportException $e) {
-                $result['server_unavailable'] = $e->getMessage();
-            }
-            $all_participants                     += $complete_participant_count;
-            $result['complete_participant_count'] = $complete_participant_count;
+                    $result['meetings'][] =
+                        [
+                            'meeting_id'              => (string)$meeting->meetingID,
+                            'meeting_name'            => (string)$meeting->meetingName,
+                            'participant_count'       => (string)$meeting->participantCount,
+                            'video_count'             => (int)$meeting->videoCount,
+                            'listener_count'          => (int)$meeting->listenerCount,
+                            'voice_participant_count' => (int)$meeting->voiceParticipantCount,
+                            'moderator_count'         => (int)$meeting->moderatorCount,
+                            'moderator_pw'            => (string)$meeting->moderatorPW,
+                            'is_break_out'            => (string)$meeting->isBreakout === "true",
+                            'course'                  => $course
+                        ];
 
-            $results[] = $result;
+                    $complete_participant_count       += (int)$meeting->participantCount;
+                    $complete_video_count             += (int)$meeting->videoCount;
+                    $complete_listener_count          += (int)$meeting->listenerCount;
+                    $complete_voice_participant_count += (int)$meeting->voiceParticipantCount;
+                    $complete_moderator_count         += (int)$meeting->moderatorCount;
+                }
+            }
+
+            $all_participants                           += $complete_participant_count;
+            $result['complete_participant_count']       = $complete_participant_count;
+            $result['complete_video_count']             = $complete_video_count;
+            $result['complete_listener_count']          = $complete_listener_count;
+            $result['complete_voice_participant_count'] = $complete_voice_participant_count;
+            $result['complete_moderator_count']         = $complete_moderator_count;
+            if ($server->category) {
+                $category_name = $server->category->name;
+            } else {
+                $category_name = _('Allgemein');
+            }
+            $results[$category_name]['category_participant_count']       += $complete_participant_count;
+            $results[$category_name]['category_video_count']             += $complete_video_count;
+            $results[$category_name]['category_listener_count']          += $complete_listener_count;
+            $results[$category_name]['category_voice_participant_count'] += $complete_voice_participant_count;
+            $results[$category_name]['category_moderator_count']         += $complete_moderator_count;
+            $results[$category_name]['results'][]                        = $result;
+            putenv("BBB_SECRET");
+            putenv("BBB_SERVER_BASE_URL");
         }
+
+        ksort($results);
+
         $this->all_participants = $all_participants;
         $this->all_meetings     = $all_meetings;
         $this->results          = $results;
@@ -66,14 +114,42 @@ class ShowController extends Controller
         $infos->setTitle(_('Infos'));
         $infos->addElement(
             new WidgetElement(
-                '<p>' . sprintf(_('Insgesamt %u Meetings'), $all_meetings) . '</p>'
+                '<p>' . sprintf(_('%u lfd. Konferenzen'), $all_meetings) . '</p>'
             )
         );
         $infos->addElement(
             new WidgetElement(
-                '<p>' . sprintf(_('Insgesamt %u Meeting-Teilnehmer'), $all_participants) . '</p>'
+                '<p>' . sprintf(_('%u TeilnehmerInnen (aktuell)'), $all_participants) . '</p>'
             )
         );
+
+        if ($this->plugin->meeting_plugin_installed) {
+            $meetings_room_counter = DBManager::get()->fetchColumn(
+                "SELECT COUNT(*) FROM vc_meetings WHERE driver = 'BigBlueButton'"
+            );
+            $infos->addElement(
+                new WidgetElement(
+                    '<p>' . sprintf(_('%u Stud.IP-Meetingräume (Summe)'), $meetings_room_counter) . '</p>'
+                )
+            );
+        }
+        try {
+            $greenlight_room_counter = GreenlightConnection::Get()->countRooms();
+            $infos->addElement(
+                new WidgetElement(
+                    '<p>' . sprintf(_('%u Greenlight-Meetingräume (Summe)'), $greenlight_room_counter) . '</p>'
+                )
+            );
+        } catch (Exception $e) {
+        }
+
+        if($greenlight_room_counter) {
+            $infos->addElement(
+                new WidgetElement(
+                    '<p>' . sprintf(_('%u Meetingräume (Summe)'), ($greenlight_room_counter + $meetings_room_counter)) . '</p>'
+                )
+            );
+        }
         Sidebar::Get()->addWidget($infos);
     }
 
@@ -81,8 +157,14 @@ class ShowController extends Controller
     {
         $actions = new ActionsWidget();
         $actions->addLink(
+            _('Server-Kategorien verwalten'),
+            $this->url_for('category/index'),
+            Icon::create('category'),
+            ['data-dialog' => 'size=auto']
+        );
+        $actions->addLink(
             _('Server hinzufügen'),
-            $this->url_for('settings/add'),
+            $this->url_for('server/add'),
             Icon::create('add'),
             ['data-dialog' => 'size=auto']
         );
