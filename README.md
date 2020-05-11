@@ -34,3 +34,5 @@ Then enter the connection data in the configuration:
 	"password":"PASSWORD",
 	"schema":"greenlight_production"
 }`
+
+Requirements: php-pgsql
