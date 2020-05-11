@@ -109,14 +109,25 @@ class ShowController extends Controller
         $infos->setTitle(_('Infos'));
         $infos->addElement(
             new WidgetElement(
-                '<p>' . sprintf(_('Insgesamt %u Meetings'), $all_meetings) . '</p>'
+                '<p>' . sprintf(_('Aktuell laufen %u Meetings'), $all_meetings) . '</p>'
             )
         );
         $infos->addElement(
             new WidgetElement(
-                '<p>' . sprintf(_('Insgesamt %u Meeting-Teilnehmer'), $all_participants) . '</p>'
+                '<p>' . sprintf(_('Aktuell %u Meeting-Teilnehmer'), $all_participants) . '</p>'
             )
         );
+
+        if($this->plugin->meeting_plugin_installed) {
+            $meetings_counter = DBManager::get()->fetchColumn(
+                "SELECT COUNT(*) FROM vc_meetings WHERE driver = 'BigBlueButton'"
+            );
+            $infos->addElement(
+                new WidgetElement(
+                    '<p>' . sprintf(_('Ingesamt %u gespeicherte Meetings'), $meetings_counter) . '</p>'
+                )
+            );
+        }
         Sidebar::Get()->addWidget($infos);
     }
 
