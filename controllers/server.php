@@ -10,6 +10,7 @@ use Vec\BBB\Category;
 use BigBlueButton\BigBlueButton;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
+use BigBlueButton\Parameters\GetMeetingInfoParameters;
 
 class ServerController extends Controller
 {
@@ -66,6 +67,28 @@ class ServerController extends Controller
             PageLayout::postSuccess(_('Der Server wurde erfolgreich gelöscht!'));
         }
         $this->redirect('show/index');
+    }
+
+    public function meeting_details_action($server_id)
+    {
+        $server = Server::find($server_id);
+        putenv("BBB_SECRET=" . $server->secret);
+        putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
+        $bbb                 = new BigBlueButton();
+        $getMeetingInfoParams = new GetMeetingInfoParameters(
+            Request::get('meeting_id'),
+            Request::get('moderator_password')
+        );
+        $response = $bbb->getMeetingInfo($getMeetingInfoParams);
+        if($response->getReturnCode() !== 'SUCCESS') {
+            PageLayout::postError(_('Es ist ein Fehler aufgetreten'), [htmlReady($response->getMessage())]);
+            $this->relocate('show/index');
+            return;
+        }
+        $this->xml = $response->getRawXml();
+        PageLayout::setTitle(sprintf(_('%s Details'), htmlReady((string)$this->xml->meetingName)));
+        putenv("BBB_SECRET");
+        putenv("BBB_SERVER_BASE_URL");
     }
 
     public function join_meeting_action($server_id)

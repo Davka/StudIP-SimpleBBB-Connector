@@ -1,9 +1,6 @@
 <tr>
     <td>
         <?= htmlReady($meeting['meeting_name']) ?>
-        <? if ($GLOBALS['perm']->have_perm('root')) : ?>
-            <?= tooltipIcon(htmlReady($meeting['meeting_id'])) ?>
-        <? endif ?>
     </td>
     <? if ($plugin->meeting_plugin_installed) : ?>
         <td>
@@ -27,17 +24,28 @@
     <? if ($GLOBALS['perm']->have_perm('root')): ?>
         <td class="actions">
             <?= ActionMenu::get()->
-            addLink(
-                $controller->url_for('server/join_meeting/' . $server->id,
-                    [
-                        'meeting_id'         => $meeting['meeting_id'],
-                        'moderator_password' => $meeting['moderator_pw']
-                    ]
-                ),
-                _('Das Meeting beitreten'),
-                Icon::create('door-enter'),
-                ['target' => '_blank']
-            )
+                addLink(
+                    $controller->url_for('server/join_meeting/' . $server->id,
+                        [
+                            'meeting_id'         => $meeting['meeting_id'],
+                            'moderator_password' => $meeting['moderator_pw']
+                        ]
+                    ),
+                    _('Das Meeting beitreten'),
+                    Icon::create('door-enter'),
+                    ['target' => '_blank']
+                )
+                ->addLink(
+                    $controller->url_for('server/meeting_details/' . $server->id,
+                        [
+                            'meeting_id'         => $meeting['meeting_id'],
+                            'moderator_password' => $meeting['moderator_pw']
+                        ]
+                    ),
+                    _('Meeting-Details anzeigen'),
+                    Icon::create('info-circle'),
+                    ['data-dialog' => 'size=auto']
+                )
                 ->addButton(
                     'cancel_meeting',
                     _('Das Meeting beenden'),
