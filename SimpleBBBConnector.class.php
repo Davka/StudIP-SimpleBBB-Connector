@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author  David Siegfried <david.siegfried@uni-vechta.de>
+ * @license GPL2 or any later version
+ */
 require __DIR__ . '/bootstrap.php';
 
 class SimpleBBBConnector extends StudIPPlugin implements SystemPlugin

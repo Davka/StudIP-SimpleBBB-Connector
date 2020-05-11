@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author  David Siegfried <david.siegfried@uni-vechta.de>
+ * @license GPL2 or any later version
+ */
 
 use Vec\BBB\Controller;
 use Vec\BBB\Category;
@@ -37,7 +41,7 @@ class CategoryController extends Controller
     {
         CSRFProtection::verifyUnsafeRequest();
         $data = ['name' => Request::get('name')];
-        if($category_id) {
+        if ($category_id) {
             $category = Category::find($category_id);
             $category->setData($data);
         } else {

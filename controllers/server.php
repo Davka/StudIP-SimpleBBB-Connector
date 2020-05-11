@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author  David Siegfried <david.siegfried@uni-vechta.de>
+ * @license GPL2 or any later version
+ */
 
 use Vec\BBB\Controller;
 use Vec\BBB\Server;

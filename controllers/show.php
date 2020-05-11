@@ -1,6 +1,11 @@
 <?php
+/**
+ * @author  David Siegfried <david.siegfried@uni-vechta.de>
+ * @license GPL2 or any later version
+ */
 
 use Vec\BBB\Controller;
+use Vec\BBB\GreenlightConnection;
 use Vec\BBB\Server;
 use BigBlueButton\BigBlueButton;
 
@@ -118,13 +123,30 @@ class ShowController extends Controller
             )
         );
 
-        if($this->plugin->meeting_plugin_installed) {
-            $meetings_counter = DBManager::get()->fetchColumn(
+        if ($this->plugin->meeting_plugin_installed) {
+            $meetings_room_counter = DBManager::get()->fetchColumn(
                 "SELECT COUNT(*) FROM vc_meetings WHERE driver = 'BigBlueButton'"
             );
             $infos->addElement(
                 new WidgetElement(
-                    '<p>' . sprintf(_('%u Meetingräume (insgesamt)'), $meetings_counter) . '</p>'
+                    '<p>' . sprintf(_('%u Stud.IP-Meetingräume (Summe)'), $meetings_room_counter) . '</p>'
+                )
+            );
+        }
+        try {
+            $greenlight_room_counter = GreenlightConnection::Get()->countRooms();
+            $infos->addElement(
+                new WidgetElement(
+                    '<p>' . sprintf(_('%u Greenlight-Meetingräume (Summe)'), $greenlight_room_counter) . '</p>'
+                )
+            );
+        } catch (Exception $e) {
+        }
+
+        if($greenlight_room_counter) {
+            $infos->addElement(
+                new WidgetElement(
+                    '<p>' . sprintf(_('%u Meetingräume (Summe)'), ($greenlight_room_counter + $meetings_room_counter)) . '</p>'
                 )
             );
         }
