@@ -1,4 +1,3 @@
-<? $cols = 6 ?>
 <form method="post">
     <?= CSRFProtection::tokenTag(); ?>
     <? if (!empty($results)) : ?>

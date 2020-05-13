@@ -9,15 +9,6 @@ use Vec\BBB\Category;
 
 class CategoryController extends Controller
 {
-    public function before_filter(&$action, &$args)
-    {
-        parent::before_filter($action, $args);
-
-        if (!$GLOBALS['perm']->have_perm('root')) {
-            throw new AccessDeniedException();
-        }
-    }
-
     public function index_action()
     {
         PageLayout::setTitle(_('Serverkategorien - verwalten'));

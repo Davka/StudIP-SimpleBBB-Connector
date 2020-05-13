@@ -14,15 +14,6 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 
 class ServerController extends Controller
 {
-    public function before_filter(&$action, &$args)
-    {
-        parent::before_filter($action, $args);
-
-        if (!$GLOBALS['perm']->have_perm('root')) {
-            throw new AccessDeniedException();
-        }
-    }
-
     public function add_action()
     {
         PageLayout::setTitle(_('Server hinzufügen'));
@@ -72,43 +63,48 @@ class ServerController extends Controller
     public function meeting_details_action($server_id)
     {
         $server = Server::find($server_id);
-        putenv("BBB_SECRET=" . $server->secret);
-        putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
-        $bbb                 = new BigBlueButton();
-        $getMeetingInfoParams = new GetMeetingInfoParameters(
-            Request::get('meeting_id'),
-            Request::get('moderator_password')
+
+        $bbb = new BigBlueButton(
+            $server->secret,
+            rtrim($server->url, 'api')
         );
-        $response = $bbb->getMeetingInfo($getMeetingInfoParams);
-        if($response->getReturnCode() !== 'SUCCESS') {
+
+        $response = $bbb->getMeetingInfo(
+            new GetMeetingInfoParameters(
+                Request::get('meeting_id'),
+                Request::get('moderator_password')
+            )
+        );
+
+        if ($response->getReturnCode() !== 'SUCCESS') {
             PageLayout::postError(_('Es ist ein Fehler aufgetreten'), [htmlReady($response->getMessage())]);
             $this->relocate('show/index');
             return;
         }
         $this->xml = $response->getRawXml();
         PageLayout::setTitle(sprintf(_('%s Details'), htmlReady((string)$this->xml->meetingName)));
-        putenv("BBB_SECRET");
-        putenv("BBB_SERVER_BASE_URL");
     }
 
     public function join_meeting_action($server_id)
     {
         $server = Server::find($server_id);
-        putenv("BBB_SECRET=" . $server->secret);
-        putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
-        $bbb                 = new BigBlueButton();
+
+        $bbb = new BigBlueButton(
+            $server->secret,
+            rtrim($server->url, 'api')
+        );
+
         $join_meeting_params = new JoinMeetingParameters(
             Request::get('meeting_id'),
             htmlReady($GLOBALS['user']->getFullname()),
             Request::get('moderator_password')
         );
         $join_meeting_params->setRedirect(true);
+
         $url = $bbb->getJoinMeetingURL($join_meeting_params);
-        putenv("BBB_SECRET");
-        putenv("BBB_SERVER_BASE_URL");
+
         header('Status: 301 Moved Permanently', false, 301);
         header('Location:' . $url);
-
         die;
     }
 
@@ -116,22 +112,23 @@ class ServerController extends Controller
     {
         CSRFProtection::verifyUnsafeRequest();
         $server = Server::find($server_id);
-        putenv("BBB_SECRET=" . $server->secret);
-        putenv("BBB_SERVER_BASE_URL=" . rtrim($server->url, 'api'));
-        $bbb = new BigBlueButton();
 
-        $endMeetingParams = new EndMeetingParameters(
-            Request::get('meeting_id'), Request::get('moderator_password')
+        $bbb = new BigBlueButton(
+            $server->secret,
+            rtrim($server->url, 'api')
         );
 
-        $response = $bbb->endMeeting($endMeetingParams);
+        $response = $bbb->endMeeting(
+            new EndMeetingParameters(
+                Request::get('meeting_id'), Request::get('moderator_password')
+            )
+        );
         if ($response->getReturnCode() == 'SUCCESS') {
             PageLayout::postSuccess(_('Das Meeting wurde erfolgreich beendet'));
         } else {
             PageLayout::postError(_('Das Meeting konnte nicht beendet werden'), [$response->getMessage()]);
         }
-        putenv("BBB_SECRET");
-        putenv("BBB_SERVER_BASE_URL");
+
         $this->redirect('show/index');
     }
 }

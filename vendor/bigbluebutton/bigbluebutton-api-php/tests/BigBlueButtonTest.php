@@ -51,7 +51,7 @@ class BigBlueButtonTest extends TestCase
             }
         }
 
-        $this->bbb = new BigBlueButton();
+        $this->bbb = new BigBlueButton(getenv('BBB_SECRET'), getenv('BBB_SERVER_BASE_URL'));
     }
 
     /* API Version */

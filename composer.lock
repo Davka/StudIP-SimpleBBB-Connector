@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b17d4c6a3ab09630a0ab91877bb4cad",
+    "content-hash": "4511fc98b5aa4c2c88b29ca7de5f7d7d",
     "packages": [
         {
             "name": "bigbluebutton/bigbluebutton-api-php",
-            "version": "2.0.8",
+            "version": "dev-ds-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/bigbluebutton/bigbluebutton-api-php.git",
-                "reference": "fe55f959406dd9dab511e1505c1a6ce568a30f7d"
+                "url": "https://github.com/Davka/bigbluebutton-api-php.git",
+                "reference": "4a18b12e75d5f651604f943b3c7abf75534290d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bigbluebutton/bigbluebutton-api-php/zipball/fe55f959406dd9dab511e1505c1a6ce568a30f7d",
-                "reference": "fe55f959406dd9dab511e1505c1a6ce568a30f7d",
+                "url": "https://api.github.com/repos/Davka/bigbluebutton-api-php/zipball/4a18b12e75d5f651604f943b3c7abf75534290d7",
+                "reference": "4a18b12e75d5f651604f943b3c7abf75534290d7",
                 "shasum": ""
             },
             "require": {
@@ -42,7 +42,6 @@
                     "BigBlueButton\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0"
             ],
@@ -60,13 +59,18 @@
                 "bbb",
                 "bigbluebutton"
             ],
-            "time": "2020-04-02T15:39:35+00:00"
+            "support": {
+                "source": "https://github.com/Davka/bigbluebutton-api-php/tree/ds-dev"
+            },
+            "time": "2020-05-13T07:34:35+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "bigbluebutton/bigbluebutton-api-php": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
