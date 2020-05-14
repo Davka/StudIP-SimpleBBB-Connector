@@ -33,8 +33,17 @@ table {
 }
 
 .bbb-metrics {
-    .ct-label {
-        font-size: 1.2rem;
+    .contentbox {
+       > section {
+           .flex();
+           .flex-wrap(wrap);
 
+           div {
+               .flex-item(1 0 50%);
+           }
+           .ct-label {
+               font-size: 1.2rem;
+           }
+       }
     }
 }
