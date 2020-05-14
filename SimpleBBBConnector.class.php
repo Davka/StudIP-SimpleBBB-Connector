@@ -24,6 +24,14 @@ class SimpleBBBConnector extends StudIPPlugin implements SystemPlugin
         $navigation = new Navigation(_('Serverübersicht'));
         $navigation->setURL(PluginEngine::getURL($this, [], 'show/index'));
         Navigation::addItem('/simplebbbconnector/overview/index', $navigation);
+
+        $navigation = new Navigation(_('Statistik'));
+        $navigation->setURL(PluginEngine::getURL($this, [], 'statistics/index'));
+        Navigation::addItem('/simplebbbconnector/statistics', $navigation);
+
+        $navigation = new Navigation(_('Übersicht'));
+        $navigation->setURL(PluginEngine::getURL($this, [], 'statistics/index'));
+        Navigation::addItem('/simplebbbconnector/statistics/index', $navigation);
     }
 
     public function perform($unconsumed_path)

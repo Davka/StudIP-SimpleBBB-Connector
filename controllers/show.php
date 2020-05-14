@@ -7,7 +7,7 @@
 use Vec\BBB\Controller;
 use Vec\BBB\GreenlightConnection;
 use Vec\BBB\Server;
-use BigBlueButton\BigBlueButton;
+use Vec\BBB\BigBlueButton;
 
 class ShowController extends Controller
 {

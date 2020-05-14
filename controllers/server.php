@@ -7,7 +7,7 @@
 use Vec\BBB\Controller;
 use Vec\BBB\Server;
 use Vec\BBB\Category;
-use BigBlueButton\BigBlueButton;
+use Vec\BBB\BigBlueButton;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
