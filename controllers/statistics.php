@@ -18,7 +18,7 @@ class StatisticsController extends Controller
     public function index_action()
     {
         Navigation::activateItem('simplebbbconnector/statistics/index');
-
+        PageLayout::setTitle(_('Statistik'));
         $this->current_month_complete = Metric::getStatistics('current_month');
     }
 }
