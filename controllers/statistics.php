@@ -25,5 +25,6 @@ class StatisticsController extends Controller
         $this->labels = json_encode(array_keys($current_month_complete));
         $this->current_month_complete = json_encode(array_map('intval', array_values($current_month_complete)));
         $this->today_complete = json_encode(array_map('intval', array_values($today_complete)));
+        $this->biggest_meetings = Metric::getStatistics('current_month', 'all', 10);
     }
 }

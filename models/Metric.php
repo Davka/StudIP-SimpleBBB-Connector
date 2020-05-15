@@ -98,35 +98,61 @@ class Metric extends SimpleORMap
         }
     }
 
-    public static function getStatistics($filter = '')
+    public static function getStatistics($filter = '',$mode = 'sum',  $limit = null)
     {
-        $sql = 'SELECT 
+        if($mode === 'sum') {
+            $sql = 'SELECT
                 COUNT(*) as "Anzahl Konferenzen",
                 SUM(participant_count) as "Anzahl TeilnehmerInnen",
                 SUM(video_count) as "Anzahl Video",
                 SUM(listener_count) as "Anzahl ZuhörerInnen",
                 SUM(voice_participant_count) as "Anzahl Audio",
                 SUM(moderator_count) as "Anzahl ModeratorenInnen",
-                SUM(is_break_out) as "Anzahl BreakOutRäume"
-                FROM `bigbluebutton_metrics`';
+                SUM(is_break_out) as "Anzahl BreakOutRäume"';
+        } else {
+            $sql = "SELECT *";
+        }
+        $sql .= ' FROM `bigbluebutton_metrics`';
 
         $attributes = [];
-        if ($filter === 'current_month') {
-            $begin = (new \DateTime('first day of this month 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
-            $end   = (new \DateTime('first day of next month 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
-        }
 
-        if ($filter === 'today') {
-            $begin = (new \DateTime('today 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
-            $end   = (new \DateTime('next day 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+        if ($filter !== '') {
+            $result =self::getFilter($filter);
+            [$begin, $end] = $result;
         }
 
         if ($begin && $end) {
-            $sql .= ' WHERE start_time BETWEEN :start_time AND :end_time';
+            $sql                       .= ' WHERE start_time BETWEEN :start_time AND :end_time';
             $attributes[':start_time'] = $begin;
             $attributes[':end_time']   = $end;
         }
+        $sql .= ' ORDER BY `participant_count` DESC, `meeting_name`';
 
+        if($limit !== null) {
+            $sql .= "  LIMIT {$limit}";
+        }
+        if($mode !== 'sum') {
+           return \DBManager::get()->fetchAll($sql, $attributes);
+        }
         return \DBManager::get()->fetchOne($sql, $attributes);
+    }
+
+    public static function getBiggestMeetings($filter = '')
+    {
+
+    }
+
+    private static function getFilter($filter = '')
+    {
+        $result = [];
+        if ($filter === 'current_month') {
+            $result[] = (new \DateTime('first day of this month 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+            $result[]   = (new \DateTime('first day of next month 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+        }
+        if ($filter === 'today') {
+            $result[] = (new \DateTime('today 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+            $result[]   = (new \DateTime('next day 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+        }
+        return $result;
     }
 }
