@@ -6,5 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    '\\' => array($baseDir . '/classes'),
+    'Vec\\BBB\\' => array($baseDir . '/classes'),
     'BigBlueButton\\' => array($vendorDir . '/bigbluebutton/bigbluebutton-api-php/src'),
 );

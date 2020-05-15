@@ -37,6 +37,7 @@ class SimpleBBBConnector extends StudIPPlugin implements SystemPlugin
     public function perform($unconsumed_path)
     {
         $this->addStylesheet('assets/bbb-connector.less');
+        PageLayout::addScript($this->getPluginURL() . '/assets/bbb-connector-app.js');
         parent::perform($unconsumed_path);
     }
 }

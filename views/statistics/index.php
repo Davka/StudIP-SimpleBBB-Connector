@@ -1,37 +1,72 @@
 <section class="bbb-metrics">
-    <? if(!empty($current_month_complete)) : ?>
+    <? if (!empty($current_month_complete)) : ?>
         <section class="contentbox">
             <header>
-                <h1><?= sprintf(_('Statistik für %s'), strftime('%B'))?></h1>
+                <h1><?= sprintf(_('Statistik für %s'), strftime('%B')) ?></h1>
             </header>
             <section>
-                <div class="bar ct-chart ct-golden-section ct-negative-labels"></div>
-                <div class="pie ct-chart ct-golden-section ct-negative-labels"></div>
+                <canvas id="bar-chart" style="width: 100%; height: 400px"></canvas>
                 <script>
-                    var data = {
-                        labels: <?= json_encode(array_keys($current_month_complete))?>,
-                        series: <?= json_encode(array_map('intval', array_values($current_month_complete)))?>
-                    }
-                    console.log(data);
-                    new Chartist.Bar('.bar', data , {
-                        distributeSeries: true,
-                    }).on('draw', function(data) {
-                        if(data.type === 'bar') {
-                            data.element.attr({
-                                style: 'stroke-width: 30px'
-                            });
-                        }
-                    });
-                    const sum = function(a, b) {return a + b };
-                    new Chartist.Pie('.pie ', {series: data.series} , {
-                        labelInterpolationFnc: function(value) {
-
-                            return Math.round(value / data.series.reduce(sum) * 100) + '%';
+                    var ctx = document.getElementById('bar-chart').getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: <?= $labels ?>,
+                            datasets: [{
+                                label: '# <?= strftime('%B')?>',
+                                data: <?= $current_month_complete ?>,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }, {
+                                label: '# <?= _('Heute')?>',
+                                data: <?= $today_complete ?>,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
                         }
                     });
                 </script>
             </section>
         </section>
-    <? endif?>
+    <? endif ?>
 
 </section>

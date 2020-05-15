@@ -7,6 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInit09d7493ee1ef1d984923d76878dacb46
 {
     public static $prefixLengthsPsr4 = array (
+        '\\' => 
+        array (
+            '\\' => 1,
+        ),
+        'V' => 
+        array (
+            'Vec\\BBB\\' => 8,
+        ),
         'B' => 
         array (
             'BigBlueButton\\' => 14,
@@ -14,6 +22,14 @@ class ComposerStaticInit09d7493ee1ef1d984923d76878dacb46
     );
 
     public static $prefixDirsPsr4 = array (
+        '\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/classes',
+        ),
+        'Vec\\BBB\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/classes',
+        ),
         'BigBlueButton\\' => 
         array (
             0 => __DIR__ . '/..' . '/bigbluebutton/bigbluebutton-api-php/src',

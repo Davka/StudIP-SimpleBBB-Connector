@@ -36,6 +36,7 @@ class Metric extends SimpleORMap
         $servers = SimpleORMapCollection::createFromArray(
             Server::findBySQL('1')
         )->orderBy('name');
+        $msgs    = [];
         foreach ($servers as $server) {
             $result = ['server' => $server];
 
@@ -44,47 +45,56 @@ class Metric extends SimpleORMap
                 rtrim($server->url, 'api')
             );
 
-            $response = $bbb->getMeetings();
-            $meetings = $response->getRawXml()->meetings->meeting;
+            try {
+                $response = $bbb->getMeetings();
+                $meetings = $response->getRawXml()->meetings->meeting;
 
-            if (!empty($meetings)) {
-                $result['complete_ounter'] = count($meetings);
+                if (!empty($meetings)) {
+                    $result['complete_ounter'] = count($meetings);
 
-                foreach ($meetings as $meeting) {
-                    $course     = null;
-                    $start_time = (new DateTime())
-                        ->setTimestamp((int)$meeting->startTime / 1000)
-                        ->format(self::BBB_DATETIME_FORMAT);
-                    $end_time   = null;
-                    if ((int)$meeting->endTime) {
-                        $end_time = (new DateTime())
-                            ->setTimestamp((int)$meeting->endTime / 1000)
+                    foreach ($meetings as $meeting) {
+                        $course     = null;
+                        $start_time = (new DateTime())
+                            ->setTimestamp((int)$meeting->startTime / 1000)
                             ->format(self::BBB_DATETIME_FORMAT);
-                    }
+                        $end_time   = null;
+                        if ((int)$meeting->endTime) {
+                            $end_time = (new DateTime())
+                                ->setTimestamp((int)$meeting->endTime / 1000)
+                                ->format(self::BBB_DATETIME_FORMAT);
+                        }
 
-                    $data   =
-                        [
-                            'server_id'               => $server->id,
-                            'meeting_id'              => (string)$meeting->meetingID,
-                            'meeting_name'            => (string)$meeting->meetingName,
-                            'participant_count'       => (string)$meeting->participantCount,
-                            'video_count'             => (int)$meeting->videoCount,
-                            'listener_count'          => (int)$meeting->listenerCount,
-                            'voice_participant_count' => (int)$meeting->voiceParticipantCount,
-                            'moderator_count'         => (int)$meeting->moderatorCount,
-                            'is_break_out'            => (string)$meeting->isBreakout === "true" ? 1 : 0,
-                            'start_time'              => $start_time,
-                            'end_time'                => $end_time,
-                        ];
-                    $metric = self::findOneBySQL('meeting_id = ? AND start_time = ?', [$data['meeting_id'], $data['start_time']]);
-                    if (!$metric) {
-                        $metric = self::build($data);
-                    } else {
-                        $metric->setData($data);
+                        $data   =
+                            [
+                                'server_id'               => $server->id,
+                                'meeting_id'              => (string)$meeting->meetingID,
+                                'meeting_name'            => (string)$meeting->meetingName,
+                                'participant_count'       => (string)$meeting->participantCount,
+                                'video_count'             => (int)$meeting->videoCount,
+                                'listener_count'          => (int)$meeting->listenerCount,
+                                'voice_participant_count' => (int)$meeting->voiceParticipantCount,
+                                'moderator_count'         => (int)$meeting->moderatorCount,
+                                'is_break_out'            => (string)$meeting->isBreakout === "true" ? 1 : 0,
+                                'start_time'              => $start_time,
+                                'end_time'                => $end_time,
+                            ];
+                        $metric = self::findOneBySQL('meeting_id = ? AND start_time = ?', [$data['meeting_id'], $data['start_time']]);
+                        if (!$metric) {
+                            $metric = self::build($data);
+                        } else {
+                            $metric->setData($data);
+                        }
+                        $metric->store();
                     }
-                    $metric->store();
                 }
+            } catch (RuntimeException $e) {
+                $msgs[] = sprintf(
+                    _('Es ist ein Fehler beim Server %s aufgetreten: %s'),
+                    htmlReady($server->url),
+                    htmlReady($e->getMessage())
+                );
             }
+            return $msgs;
         }
     }
 
@@ -104,8 +114,15 @@ class Metric extends SimpleORMap
         if ($filter === 'current_month') {
             $begin = (new \DateTime('first day of this month 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
             $end   = (new \DateTime('first day of next month 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+        }
 
-            $sql                       .= ' WHERE start_time BETWEEN :start_time AND :end_time';
+        if ($filter === 'today') {
+            $begin = (new \DateTime('today 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+            $end   = (new \DateTime('next day 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+        }
+
+        if ($begin && $end) {
+            $sql .= ' WHERE start_time BETWEEN :start_time AND :end_time';
             $attributes[':start_time'] = $begin;
             $attributes[':end_time']   = $end;
         }

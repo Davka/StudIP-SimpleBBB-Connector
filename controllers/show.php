@@ -42,43 +42,47 @@ class ShowController extends Controller
                 rtrim($server->url, 'api')
             );
 
-            $response = $bbb->getMeetings();
-            $meetings = $response->getRawXml()->meetings->meeting;
+            try {
+                $response = $bbb->getMeetings();
+                $meetings = $response->getRawXml()->meetings->meeting;
 
-            if (!empty($meetings)) {
-                $result['complete_ounter'] = count($meetings);
+                if (!empty($meetings)) {
+                    $result['complete_ounter'] = count($meetings);
 
-                foreach ($meetings as $meeting) {
-                    $all_meetings++;
-                    $course = null;
-                    if ($this->plugin->meeting_plugin_installed) {
-                        $course = \Course::findOneBySQL(
-                            'JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id 
+                    foreach ($meetings as $meeting) {
+                        $all_meetings++;
+                        $course = null;
+                        if ($this->plugin->meeting_plugin_installed) {
+                            $course = \Course::findOneBySQL(
+                                'JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id 
                                 JOIN vc_meetings vm ON vm.id = vmc.meeting_id
                                 WHERE vm.remote_id = ?',
-                            [(string)$meeting->meetingID]
-                        );
-                    }
-                    $result['meetings'][] =
-                        [
-                            'meeting_id'              => (string)$meeting->meetingID,
-                            'meeting_name'            => (string)$meeting->meetingName,
-                            'participant_count'       => (string)$meeting->participantCount,
-                            'video_count'             => (int)$meeting->videoCount,
-                            'listener_count'          => (int)$meeting->listenerCount,
-                            'voice_participant_count' => (int)$meeting->voiceParticipantCount,
-                            'moderator_count'         => (int)$meeting->moderatorCount,
-                            'moderator_pw'            => (string)$meeting->moderatorPW,
-                            'is_break_out'            => (string)$meeting->isBreakout === "true",
-                            'course'                  => $course
-                        ];
+                                [(string)$meeting->meetingID]
+                            );
+                        }
+                        $result['meetings'][] =
+                            [
+                                'meeting_id'              => (string)$meeting->meetingID,
+                                'meeting_name'            => (string)$meeting->meetingName,
+                                'participant_count'       => (string)$meeting->participantCount,
+                                'video_count'             => (int)$meeting->videoCount,
+                                'listener_count'          => (int)$meeting->listenerCount,
+                                'voice_participant_count' => (int)$meeting->voiceParticipantCount,
+                                'moderator_count'         => (int)$meeting->moderatorCount,
+                                'moderator_pw'            => (string)$meeting->moderatorPW,
+                                'is_break_out'            => (string)$meeting->isBreakout === "true",
+                                'course'                  => $course
+                            ];
 
-                    $complete_participant_count       += (int)$meeting->participantCount;
-                    $complete_video_count             += (int)$meeting->videoCount;
-                    $complete_listener_count          += (int)$meeting->listenerCount;
-                    $complete_voice_participant_count += (int)$meeting->voiceParticipantCount;
-                    $complete_moderator_count         += (int)$meeting->moderatorCount;
+                        $complete_participant_count       += (int)$meeting->participantCount;
+                        $complete_video_count             += (int)$meeting->videoCount;
+                        $complete_listener_count          += (int)$meeting->listenerCount;
+                        $complete_voice_participant_count += (int)$meeting->voiceParticipantCount;
+                        $complete_moderator_count         += (int)$meeting->moderatorCount;
+                    }
                 }
+            } catch (Exception $e) {
+                $result['server_unavailable'] = $e->getMessage();
             }
 
             $all_participants                           += $complete_participant_count;
