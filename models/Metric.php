@@ -37,6 +37,7 @@ class Metric extends SimpleORMap
             Server::findBySQL('1')
         )->orderBy('name');
         $msgs    = [];
+
         foreach ($servers as $server) {
             $result = ['server' => $server];
 
@@ -51,7 +52,6 @@ class Metric extends SimpleORMap
 
                 if (!empty($meetings)) {
                     $result['complete_ounter'] = count($meetings);
-
                     foreach ($meetings as $meeting) {
                         $course     = null;
                         $start_time = (new DateTime())
@@ -87,15 +87,15 @@ class Metric extends SimpleORMap
                         $metric->store();
                     }
                 }
-            } catch (RuntimeException $e) {
+            } catch (\Exception $e) {
                 $msgs[] = sprintf(
                     _('Es ist ein Fehler beim Server %s aufgetreten: %s'),
                     htmlReady($server->url),
                     htmlReady($e->getMessage())
                 );
             }
-            return $msgs;
         }
+        return $msgs;
     }
 
     public static function getStatistics($filter = '',$mode = 'sum',  $limit = null)
