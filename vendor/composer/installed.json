@@ -1,0 +1,62 @@
+[
+    {
+        "name": "bigbluebutton/bigbluebutton-api-php",
+        "version": "dev-ds-dev",
+        "version_normalized": "dev-ds-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Davka/bigbluebutton-api-php.git",
+            "reference": "4a18b12e75d5f651604f943b3c7abf75534290d7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Davka/bigbluebutton-api-php/zipball/4a18b12e75d5f651604f943b3c7abf75534290d7",
+            "reference": "4a18b12e75d5f651604f943b3c7abf75534290d7",
+            "shasum": ""
+        },
+        "require": {
+            "ext-curl": "*",
+            "ext-mbstring": "*",
+            "ext-simplexml": "*",
+            "php": ">=5.4"
+        },
+        "require-dev": {
+            "composer/composer": "1.7.*@dev",
+            "ext-mbstring": "*",
+            "friendsofphp/php-cs-fixer": "2.*",
+            "fzaninotto/faker": "~1.8.0",
+            "php": ">=7.0",
+            "php-coveralls/php-coveralls": "2.1.*",
+            "phpunit/phpunit": "6.*",
+            "squizlabs/php_codesniffer": "3.*"
+        },
+        "time": "2020-05-13T07:34:35+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "BigBlueButton\\": "src"
+            }
+        },
+        "license": [
+            "GPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "Ghazi Triki",
+                "email": "ghazi.nocturne@gmail.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "BigBlueButton PHP API Library for PHP",
+        "homepage": "http://bigbluebutton.org/",
+        "keywords": [
+            "api",
+            "bbb",
+            "bigbluebutton"
+        ],
+        "support": {
+            "source": "https://github.com/Davka/bigbluebutton-api-php/tree/ds-dev"
+        }
+    }
+]
