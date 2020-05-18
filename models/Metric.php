@@ -137,22 +137,26 @@ class Metric extends SimpleORMap
         return \DBManager::get()->fetchOne($sql, $attributes);
     }
 
-    public static function getBiggestMeetings($filter = '')
-    {
-
-    }
-
     private static function getFilter($filter = '')
     {
         $result = [];
         if ($filter === 'current_month') {
-            $result[] = (new \DateTime('first day of this month 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
-            $result[]   = (new \DateTime('first day of next month 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('first day of this month 00:00:00'));
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('first day of next month 00:00:00'));
         }
         if ($filter === 'today') {
-            $result[] = (new \DateTime('today 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
-            $result[]   = (new \DateTime('next day 00:00:00'))->format(self::BBB_DATETIME_FORMAT);
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('today 00:00:00'));
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('next day 00:00:00'));
         }
+        if ($filter === 'current_week') {
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('monday this week 00:00:00'));
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('sunday this week 00:00:00'));
+        }
+        if ($filter === 'last_week') {
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('monday last week 00:00:00'));
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('sunday last week 00:00:00'));
+        }
+
         return $result;
     }
 }
