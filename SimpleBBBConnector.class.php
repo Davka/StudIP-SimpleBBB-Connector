@@ -24,14 +24,21 @@ class SimpleBBBConnector extends StudIPPlugin implements SystemPlugin
         $navigation = new Navigation(_('Serverübersicht'));
         $navigation->setURL(PluginEngine::getURL($this, [], 'show/index'));
         Navigation::addItem('/simplebbbconnector/overview/index', $navigation);
-
-        $navigation = new Navigation(_('Statistik'));
-        $navigation->setURL(PluginEngine::getURL($this, [], 'statistics/index'));
-        Navigation::addItem('/simplebbbconnector/statistics', $navigation);
-
-        $navigation = new Navigation(_('Übersicht'));
-        $navigation->setURL(PluginEngine::getURL($this, [], 'statistics/index'));
-        Navigation::addItem('/simplebbbconnector/statistics/index', $navigation);
+        $crobjob_active = CronjobSchedule::countBySql(
+            'INNER JOIN cronjobs_tasks ON cronjobs_tasks.task_id = cronjobs_schedules.task_id 
+            WHERE cronjobs_tasks.class = ? 
+                AND cronjobs_tasks.active = 1
+                AND cronjobs_schedules.active = 1',
+            ['BBBCollector']
+        ) > 0;
+        if ($crobjob_active) {
+            $navigation = new Navigation(_('Statistik'));
+            $navigation->setURL(PluginEngine::getURL($this, [], 'statistics/index'));
+            Navigation::addItem('/simplebbbconnector/statistics', $navigation);
+            $navigation = new Navigation(_('Übersicht'));
+            $navigation->setURL(PluginEngine::getURL($this, [], 'statistics/index'));
+            Navigation::addItem('/simplebbbconnector/statistics/index', $navigation);
+        }
     }
 
     public function perform($unconsumed_path)
