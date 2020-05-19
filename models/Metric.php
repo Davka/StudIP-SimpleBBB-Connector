@@ -144,10 +144,6 @@ class Metric extends SimpleORMap
             $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('first day of this month 00:00:00'));
             $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('first day of next month 00:00:00'));
         }
-        if ($filter === 'today') {
-            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('today 00:00:00'));
-            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('next day 00:00:00'));
-        }
         if ($filter === 'current_week') {
             $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('monday this week 00:00:00'));
             $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('sunday this week 00:00:00'));
@@ -156,7 +152,14 @@ class Metric extends SimpleORMap
             $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('monday last week 00:00:00'));
             $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('sunday last week 00:00:00'));
         }
-
+        if ($filter === 'today') {
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('today 00:00:00'));
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('next day 00:00:00'));
+        }
+        if ($filter === 'yesterday') {
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('yesterday 00:00:00'));
+            $result[] = date(self::BBB_DATETIME_FORMAT, strtotime('today 00:00:00'));
+        }
         return $result;
     }
 }
