@@ -21,7 +21,7 @@ class Metric extends SimpleORMap
         $config['db_table'] = 'bigbluebutton_metrics';
 
         $config['belongs_to']['server'] = [
-            'class_name'        => 'Vec\\BBB\\Server',
+            'class_name'  => 'Vec\\BBB\\Server',
             'foreign_key' => 'server_id',
         ];
         parent::configure($config);
@@ -36,8 +36,8 @@ class Metric extends SimpleORMap
     {
         $metrics = self::findBySQL('1 ORDER BY `mkdate`');
         $results = [];
-        if(!empty($metrics)) {
-            $results[] = [
+        if (!empty($metrics)) {
+            $results[]                = [
                 'Server',
                 'Meeting-id',
                 'Meeting-Name',
@@ -46,25 +46,39 @@ class Metric extends SimpleORMap
                 'Anzahl ZuhörerInnen',
                 'Anzahl Audio',
                 'BreakOutRaum',
-                'Start-Zeit',
-                'End-Zeit',
+                'Start-Datum',
+                'Start-Uhrzeit',
+                'End-Datum',
+                'End-Uhrzeit',
                 'Username',
             ];
             $meeting_plugin_installed = PluginEngine::getPlugin('MeetingPlugin') !== null;
-            foreach($metrics as $metric) {
-                $result = [];
-                $result['server'] = $metric->server->url;
-                $result['meeting_id'] = $metric->meeting_id;
-                $result['meeting_name'] = $metric->meeting_name;
-                $result['participant_count'] = $metric->participant_count;
-                $result['video_count'] = $metric->video_count;
-                $result['listener_count'] = $metric->listener_count;
+            foreach ($metrics as $metric) {
+                $start_date = '';
+                $start_time = '';
+                $end_date   = '';
+                $end_time   = '';
+                if ($metric->start_time) {
+                    $start      = new DateTime($metric->start_time);
+                    $start_date = $start->format('d.m.Y');
+                    $start_time = $start->format('H:i');
+                }
+
+                $result                            = [];
+                $result['server']                  = $metric->server->url;
+                $result['meeting_id']              = $metric->meeting_id;
+                $result['meeting_name']            = $metric->meeting_name;
+                $result['participant_count']       = $metric->participant_count;
+                $result['video_count']             = $metric->video_count;
+                $result['listener_count']          = $metric->listener_count;
                 $result['voice_participant_count'] = $metric->voice_participant_count;
-                $result['is_break_out'] = $metric->is_break_out;
-                $result['start_time'] = $metric->start_time;
-                $result['end_time'] = $metric->end_time;
-                $result['email'] = "";
-                if($meeting_plugin_installed) {
+                $result['is_break_out']            = $metric->is_break_out;
+                $result['start_date']              = $start_date;
+                $result['start_time']              = $start_time;
+                $result['end_date']                = $end_date;
+                $result['end_time']                = $end_time;
+                $result['email']                   = "";
+                if ($meeting_plugin_installed) {
                     $username = DBManager::get()->fetchColumn(
                         "SELECT a.username FROM auth_user_md5 a 
                         JOIN vc_meetings vc ON vc.user_id = a.user_id
@@ -72,12 +86,12 @@ class Metric extends SimpleORMap
                         [$metric->meeting_id]
                     );
 
-                    if($username) {
+                    if ($username) {
                         $result['email'] = $username;
                     }
                 } else {
                     $meeting_data = GreenlightConnection::Get()->getMeetingData($metric->meeting_id);
-                    if($meeting_data) {
+                    if ($meeting_data) {
                         $result['email'] = $meeting_data['username'];
                     }
                 }
