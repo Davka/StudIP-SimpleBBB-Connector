@@ -8,6 +8,7 @@ namespace Vec\BBB;
 
 use SimpleORMap;
 use DateTime;
+use PluginEngine;
 use DBManager;
 use SimpleORMapCollection;
 
@@ -21,7 +22,7 @@ class Metric extends SimpleORMap
 
         $config['belongs_to']['server'] = [
             'class_name'        => 'Vec\\BBB\\Server',
-            'assoc_foreign_key' => 'server_id',
+            'foreign_key' => 'server_id',
         ];
         parent::configure($config);
     }
@@ -29,6 +30,62 @@ class Metric extends SimpleORMap
     public static function getCollectedYears()
     {
         return DBManager::get()->fetchColumn('SELECT DISTINCT YEAR(`start_time`) FROM `bigbluebutton_metrics`');
+    }
+
+    public static function getExport()
+    {
+        $metrics = self::findBySQL('1 ORDER BY `mkdate`');
+        $results = [];
+        if(!empty($metrics)) {
+            $results[] = [
+                'Server',
+                'Meeting-id',
+                'Meeting-Name',
+                'Anzahl TeilnehmerInnen',
+                'Anzahl Webcams',
+                'Anzahl ZuhörerInnen',
+                'Anzahl Audio',
+                'BreakOutRaum',
+                'Start-Zeit',
+                'End-Zeit',
+                'Username',
+            ];
+            $meeting_plugin_installed = PluginEngine::getPlugin('MeetingPlugin') !== null;
+            foreach($metrics as $metric) {
+                $result = [];
+                $result['server'] = $metric->server->url;
+                $result['meeting_id'] = $metric->meeting_id;
+                $result['meeting_name'] = $metric->meeting_name;
+                $result['participant_count'] = $metric->participant_count;
+                $result['video_count'] = $metric->video_count;
+                $result['listener_count'] = $metric->listener_count;
+                $result['voice_participant_count'] = $metric->voice_participant_count;
+                $result['is_break_out'] = $metric->is_break_out;
+                $result['start_time'] = $metric->start_time;
+                $result['end_time'] = $metric->end_time;
+                $result['email'] = "";
+                if($meeting_plugin_installed) {
+                    $username = DBManager::get()->fetchColumn(
+                        "SELECT a.username FROM auth_user_md5 a 
+                        JOIN vc_meetings vc ON vc.user_id = a.user_id
+                        WHERE vc.remote_id = ?",
+                        [$metric->meeting_id]
+                    );
+
+                    if($username) {
+                        $result['email'] = $username;
+                    }
+                } else {
+                    $meeting_data = GreenlightConnection::Get()->getMeetingData($metric->meeting_id);
+                    if($meeting_data) {
+                        $result['email'] = $meeting_data['username'];
+                    }
+                }
+                $results[] = $result;
+            }
+            return $results;
+        }
+        return $results;
     }
 
     public static function collect()
@@ -98,9 +155,9 @@ class Metric extends SimpleORMap
         return $msgs;
     }
 
-    public static function getStatistics($filter = '',$mode = 'sum',  $limit = null)
+    public static function getStatistics($filter = '', $mode = 'sum', $limit = null)
     {
-        if($mode === 'sum') {
+        if ($mode === 'sum') {
             $sql = 'SELECT
                 COUNT(*) as "Anzahl Konferenzen",
                 SUM(participant_count) as "Anzahl TeilnehmerInnen",
@@ -117,7 +174,7 @@ class Metric extends SimpleORMap
         $attributes = [];
 
         if ($filter !== '') {
-            $result =self::getFilter($filter);
+            $result = self::getFilter($filter);
             [$begin, $end] = $result;
         }
 
@@ -128,11 +185,11 @@ class Metric extends SimpleORMap
         }
         $sql .= ' ORDER BY `participant_count` DESC, `meeting_name`';
 
-        if($limit !== null) {
+        if ($limit !== null) {
             $sql .= "  LIMIT {$limit}";
         }
-        if($mode !== 'sum') {
-           return \DBManager::get()->fetchAll($sql, $attributes);
+        if ($mode !== 'sum') {
+            return \DBManager::get()->fetchAll($sql, $attributes);
         }
         return \DBManager::get()->fetchOne($sql, $attributes);
     }

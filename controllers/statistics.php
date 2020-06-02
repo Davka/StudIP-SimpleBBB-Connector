@@ -13,6 +13,8 @@ class StatisticsController extends Controller
     {
         parent::before_filter($action, $args);
         Metric::collect();
+
+        $this->buildSidebar();
     }
 
     public function index_action()
@@ -30,6 +32,14 @@ class StatisticsController extends Controller
         $this->biggest_meetings = Metric::getStatistics('current_month', 'all', 10);
     }
 
+    public function export_csv_action()
+    {
+        $results = Metric::getExport();
+        $this->render_csv(
+            $results,
+            'BigBlueButtonStatistik_' . time() . '.csv'
+        );
+    }
 
     public function buildDataSet($label, $data, $border_color, $background_color)
     {
@@ -61,5 +71,16 @@ class StatisticsController extends Controller
                    'brownDark'  => 'rgba(255, 159, 64, 0.2)',
                    'brown'      => 'rgba(255, 159, 64, 1)'];
         return $colors[$color];
+    }
+
+    private function buildSidebar()
+    {
+        $exports = new ExportWidget();
+        $exports->addLink(
+            _('Als CSV herunterladen'),
+            $this->url_for('statistic/export_csv'),
+            Icon::create('file-excel')
+        );
+        Sidebar::Get()->addWidget($exports);
     }
 }

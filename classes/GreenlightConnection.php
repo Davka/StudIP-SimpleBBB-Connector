@@ -24,7 +24,7 @@ class GreenlightConnection
         $config = Config::Get()->GREENLIGHT_CONNECTION;
 
         if (!$config) {
-            throw new Exception('POS connection is not configured');
+            throw new Exception('Greenlight-Connection is not configured');
         }
 
         return self::$instance = new self(
@@ -68,5 +68,16 @@ class GreenlightConnection
         $stm = $this->connection->prepare($sql);
         $stm->execute();
         return $stm->fetchColumn();
+    }
+
+    public function getMeetingData($meeting_id)
+    {
+        $sql = "SELECT * FROM rooms as r 
+        JOIN users as u ON u.id = r.user_id 
+        WHERE r.bbb_id = :meeting_id";
+        $stm = $this->connection->prepare($sql);
+        $stm->execute([':meeting_id' => $meeting_id]);
+        return $stm->fetch(PDO::FETCH_ASSOC);
+
     }
 }
