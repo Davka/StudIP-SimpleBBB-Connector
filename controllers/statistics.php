@@ -78,7 +78,7 @@ class StatisticsController extends Controller
         $exports = new ExportWidget();
         $exports->addLink(
             _('Als CSV herunterladen'),
-            $this->url_for('statistic/export_csv'),
+            $this->url_for('statistics/export_csv'),
             Icon::create('file-excel')
         );
         Sidebar::Get()->addWidget($exports);
