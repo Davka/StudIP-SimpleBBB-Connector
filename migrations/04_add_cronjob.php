@@ -9,8 +9,8 @@ class AddCronjob extends Migration
 {
     public function up()
     {
-        $task_id  = CronjobScheduler::registerTask(self::getCronjobFilename());
-        $schedule = CronjobScheduler::schedulePeriodic($task_id, 0, 0, 2);
+        $task_id  = CronjobScheduler::getInstance()->registerTask(self::getCronjobFilename());
+        $schedule = CronjobScheduler::getInstance()->schedulePeriodic($task_id, 0, 0, 2);
 
         $schedule->active = true;
         $schedule->store();
@@ -41,7 +41,7 @@ class AddCronjob extends Migration
     {
         $task = reset(CronjobTask::findByClass('BBBCollector'));
         if($task) {
-            CronjobScheduler::unregisterTask($task->task_id);
+            CronjobScheduler::getInstance()->unregisterTask($task->task_id);
         }
         DBManager::get()->exec('DROP TABLE `bigbluebutton_metrics`');
         SimpleORMap::expireTableScheme();
