@@ -20,4 +20,9 @@ class AddCategory extends Migration
         DBManager::get()->exec("ALTER TABLE `bigbluebutton_servers` ADD `category_id` int(11) DEFAULT NULL AFTER `id`");
         SimpleORMap::expireTableScheme();
     }
+
+    public function down()
+    {
+        DBManager::get()->exec('DROP TABLE `bigbluebutton_category`');
+    }
 }

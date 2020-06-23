@@ -8,7 +8,7 @@
     "build": "webpack --mode production",
     "dev": "webpack --mode=development --watch",
     "prezip": "npm run build",
-    "zip": "zip -r SimpleBBBConnector-V$npm_package_version.zip assets classes controllers cronjobs migrations models views README.md bootstrap.php SimpleBBBConnector.class.php plugin.manifest"
+    "zip": "zip -r SimpleBBBConnector-V$npm_package_version.zip assets classes controllers cronjobs migrations vendor models views README.md bootstrap.php SimpleBBBConnector.class.php plugin.manifest"
   },
   "repository": {
     "type": "git",
