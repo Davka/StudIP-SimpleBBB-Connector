@@ -51,14 +51,9 @@ class ShowController extends Controller
 
                     foreach ($meetings as $meeting) {
                         $all_meetings++;
-                        $course = null;
+                        $seminar = null;
                         if ($this->plugin->meeting_plugin_installed) {
-                            $course = \Course::findOneBySQL(
-                                'JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id 
-                                JOIN vc_meetings vm ON vm.id = vmc.meeting_id
-                                WHERE vm.remote_id = ?',
-                                [(string)$meeting->meetingID]
-                            );
+                            $seminar = $this->getSeminar((string)$meeting->meetingID);
                         }
                         $result['meetings'][] =
                             [
@@ -71,7 +66,7 @@ class ShowController extends Controller
                                 'moderator_count'         => (int)$meeting->moderatorCount,
                                 'moderator_pw'            => (string)$meeting->moderatorPW,
                                 'is_break_out'            => (string)$meeting->isBreakout === "true",
-                                'course'                  => $course
+                                'seminar'                  => $seminar
                             ];
 
                         $complete_participant_count       += (int)$meeting->participantCount;
@@ -169,5 +164,18 @@ class ShowController extends Controller
             ['data-dialog' => 'size=auto']
         );
         Sidebar::Get()->addWidget($actions);
+    }
+
+    private function getSeminar($meeting_id) {
+        $sem_id = DBManager::get()->fetchColumn('SELECT Seminar_id FROM seminare JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id
+                                JOIN vc_meetings vm ON vm.id = vmc.meeting_id
+                                WHERE vm.remote_id = ?', [$meeting_id]);
+
+        $seminar = null;
+
+        if($sem_id) {
+            $seminar = Seminar::GetInstance($sem_id);
+        }
+        return $seminar;
     }
 }

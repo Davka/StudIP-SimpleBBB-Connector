@@ -4,11 +4,14 @@
     </td>
     <? if ($plugin->meeting_plugin_installed) : ?>
         <td>
-            <? if ($meeting['course']) : ?>
-                <a href="<?= URLHelper::getLink('dispatch.php/course/details/index/' . $meeting['course']->id) ?>"
+            <? if ($meeting['seminar']) : ?>
+                <a href="<?= URLHelper::getLink('dispatch.php/course/details/index/' . $meeting['seminar']->id) ?>"
                    data-dialog="size=auto">
-                    <?= htmlReady($meeting['course']->getFullname()) ?>
+                    <?= htmlReady($meeting['seminar']->getFullname()) ?>
                 </a>
+            <small>
+                <?= $meeting['seminar']->getDatesTemplate('dates/seminar_html', ['show_room' => true])?>
+            </small>
             <? elseif ($meeting['is_break_out']): ?>
                 <?= _('Breakout-Raum') ?>
             <? else : ?>

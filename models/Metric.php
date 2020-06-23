@@ -124,7 +124,6 @@ class Metric extends SimpleORMap
                 if (!empty($meetings)) {
                     $result['complete_ounter'] = count($meetings);
                     foreach ($meetings as $meeting) {
-                        $course     = null;
                         $start_time = (new DateTime())
                             ->setTimestamp((int)$meeting->startTime / 1000)
                             ->format(self::BBB_DATETIME_FORMAT);
