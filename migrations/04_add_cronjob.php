@@ -9,7 +9,7 @@ class AddCronjob extends Migration
 {
     public function up()
     {
-        $task_id  = CronjobScheduler::registerTask($this->getCronjobFilename());
+        $task_id  = CronjobScheduler::registerTask(self::getCronjobFilename());
         $schedule = CronjobScheduler::schedulePeriodic($task_id, 0, 0, 2);
 
         $schedule->active = true;
@@ -45,7 +45,7 @@ class AddCronjob extends Migration
         SimpleORMap::expireTableScheme();
     }
 
-    private function getCronjobFilename()
+    private static function getCronjobFilename()
     {
         return str_replace($GLOBALS['STUDIP_BASE_PATH'] . '/', '',
             realpath(__DIR__ . '/../cronjobs/BBBCollector.php'));
