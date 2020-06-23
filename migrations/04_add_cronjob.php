@@ -40,7 +40,9 @@ class AddCronjob extends Migration
     public function down()
     {
         $task = reset(CronjobTask::findByClass('BBBCollector'));
-        CronjobScheduler::unregisterTask($task->task_id);
+        if(!$task) {
+            CronjobScheduler::unregisterTask($task->task_id);
+        }
         DBManager::get()->exec('DROP TABLE `bigbluebutton_metrics`');
         SimpleORMap::expireTableScheme();
     }
