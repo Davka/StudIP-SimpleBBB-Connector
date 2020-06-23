@@ -82,6 +82,7 @@ class ServerController extends Controller
             return;
         }
         $this->xml = $response->getRawXml();
+
         PageLayout::setTitle(sprintf(_('%s Details'), htmlReady((string)$this->xml->meetingName)));
     }
 

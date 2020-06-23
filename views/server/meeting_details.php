@@ -35,4 +35,14 @@
         <td><?= _('Break-Out-Raum') ?></td>
         <td><?= ((string)$xml->isBreakout === 'false') ? _('Nein') : _('Ja') ?></td>
     </tr>
+    <? if ($xml->attendees) : ?>
+        <td><?= _('Teilnehmer') ?></td>
+        <td>
+            <ul>
+                <? foreach ($xml->attendees->attendee as $attendee) : ?>
+                    <li><?= htmlReady((string)$attendee->fullName)?></li>
+                <? endforeach ?>
+            </ul>
+        </td>
+    <? endif ?>
 </table>
