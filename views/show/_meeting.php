@@ -4,14 +4,16 @@
     </td>
     <? if ($plugin->meeting_plugin_installed) : ?>
         <td>
-            <? if ($meeting['seminar']) : ?>
-                <a href="<?= URLHelper::getLink('dispatch.php/course/details/index/' . $meeting['seminar']->id) ?>"
+            <? if ($meeting['course']) : ?>
+                <a href="<?= URLHelper::getLink('dispatch.php/course/details/index/' . $meeting['course']->id) ?>"
                    data-dialog="size=auto">
-                    <?= htmlReady($meeting['seminar']->getFullname()) ?>
+                    <?= htmlReady($meeting['course']->getFullname()) ?>
                 </a>
-            <small>
-                <?= $meeting['seminar']->getDatesTemplate('dates/seminar_html', ['show_room' => true])?>
-            </small>
+                <? if($meeting['current_course_date']) : ?>
+                    <small>
+                        <?=  htmlReady($meeting['current_course_date']->getFullname())?>
+                    </small>
+                <? endif ?>
             <? elseif ($meeting['is_break_out']): ?>
                 <?= _('Breakout-Raum') ?>
             <? else : ?>
@@ -19,7 +21,12 @@
             <? endif ?>
         </td>
     <? endif ?>
-    <td style="text-align: center"><?= htmlReady($meeting['participant_count']) ?></td>
+    <td style="text-align: center">
+        <?= htmlReady($meeting['participant_count']) ?>
+        <? if ($meeting['max_users']) : ?>
+            <?= sprintf('/%s', htmlReady($meeting['max_users']))?>
+        <? endif ?>
+    </td>
     <td style="text-align: center"><?= htmlReady($meeting['video_count']) ?></td>
     <td style="text-align: center"><?= htmlReady($meeting['listener_count']) ?></td>
     <td style="text-align: center"><?= htmlReady($meeting['voice_participant_count']) ?></td>

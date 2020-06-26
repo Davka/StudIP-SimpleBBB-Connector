@@ -37,7 +37,7 @@
             <? if ($plugin->meeting_plugin_installed) : ?>
                 <th><?= _('Veranstaltung') ?></th>
             <? endif ?>
-            <th style="text-align: center"><?= _('# TN') ?></th>
+            <th style="text-align: center"><?= _('# TN/Max') ?></th>
             <th style="text-align: center"><?= _('# Cam') ?></th>
             <th style="text-align: center"><?= _('# Zuhörer') ?></th>
             <th style="text-align: center"><?= _('# Audio') ?></th>

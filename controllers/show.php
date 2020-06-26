@@ -51,22 +51,35 @@ class ShowController extends Controller
 
                     foreach ($meetings as $meeting) {
                         $all_meetings++;
-                        $seminar = null;
+                        $course              = null;
+                        $current_course_date = null;
                         if ($this->plugin->meeting_plugin_installed) {
-                            $seminar = $this->getSeminar((string)$meeting->meetingID);
+                            $course = Course::findOneBySQL('JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id
+                                JOIN vc_meetings vm ON vm.id = vmc.meeting_id WHERE vm.remote_id = ?',
+                                [(string)$meeting->meetingID]
+                            );
+
+                            if ($course) {
+                                $current_course_date = CourseDate::findOneBySQL(
+                                    'range_id = ? AND UNIX_TIMESTAMP() BETWEEN date and end_time',
+                                    [$course->id]
+                                );
+                            }
                         }
                         $result['meetings'][] =
                             [
                                 'meeting_id'              => (string)$meeting->meetingID,
                                 'meeting_name'            => (string)$meeting->meetingName,
                                 'participant_count'       => (string)$meeting->participantCount,
+                                'max_users'               => (int)$meeting->maxUsers,
                                 'video_count'             => (int)$meeting->videoCount,
                                 'listener_count'          => (int)$meeting->listenerCount,
                                 'voice_participant_count' => (int)$meeting->voiceParticipantCount,
                                 'moderator_count'         => (int)$meeting->moderatorCount,
                                 'moderator_pw'            => (string)$meeting->moderatorPW,
                                 'is_break_out'            => (string)$meeting->isBreakout === "true",
-                                'seminar'                  => $seminar
+                                'course'                  => $course,
+                                'current_course_date'     => $current_course_date
                             ];
 
                         $complete_participant_count       += (int)$meeting->participantCount;
@@ -164,18 +177,5 @@ class ShowController extends Controller
             ['data-dialog' => 'size=auto']
         );
         Sidebar::Get()->addWidget($actions);
-    }
-
-    private function getSeminar($meeting_id) {
-        $sem_id = DBManager::get()->fetchColumn('SELECT Seminar_id FROM seminare JOIN vc_meeting_course vmc on vmc.course_id = Seminar_id
-                                JOIN vc_meetings vm ON vm.id = vmc.meeting_id
-                                WHERE vm.remote_id = ?', [$meeting_id]);
-
-        $seminar = null;
-
-        if($sem_id) {
-            $seminar = Seminar::GetInstance($sem_id);
-        }
-        return $seminar;
     }
 }
