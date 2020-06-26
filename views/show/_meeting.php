@@ -22,10 +22,7 @@
         </td>
     <? endif ?>
     <td style="text-align: center">
-        <?= htmlReady($meeting['participant_count']) ?>
-        <? if ($meeting['max_users']) : ?>
-            <?= sprintf('/%s', htmlReady($meeting['max_users']))?>
-        <? endif ?>
+            <?= sprintf('%s/%s', htmlReady($meeting['participant_count']), htmlReady($meeting['max_users']))?>
     </td>
     <td style="text-align: center"><?= htmlReady($meeting['video_count']) ?></td>
     <td style="text-align: center"><?= htmlReady($meeting['listener_count']) ?></td>

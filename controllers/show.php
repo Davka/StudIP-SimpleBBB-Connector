@@ -66,12 +66,16 @@ class ShowController extends Controller
                                 );
                             }
                         }
+                        $max_users = (int)$meeting->maxUsers;
+                        if($max_users === 0) {
+                            $max_users = '*';
+                        }
                         $result['meetings'][] =
                             [
                                 'meeting_id'              => (string)$meeting->meetingID,
                                 'meeting_name'            => (string)$meeting->meetingName,
                                 'participant_count'       => (string)$meeting->participantCount,
-                                'max_users'               => (int)$meeting->maxUsers,
+                                'max_users'               => $max_users,
                                 'video_count'             => (int)$meeting->videoCount,
                                 'listener_count'          => (int)$meeting->listenerCount,
                                 'voice_participant_count' => (int)$meeting->voiceParticipantCount,
