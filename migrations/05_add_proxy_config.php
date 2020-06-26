@@ -12,7 +12,7 @@ class AddProxyConfig extends Migration
             Config::get()->create('BBB_API_PROXY', [
                 'value'       => '',
                 'is_default'  => 0,
-                'type'        => 'array',
+                'type'        => 'string',
                 'range'       => 'global',
                 'section'     => 'BigBlueButtonConnector',
                 'description' => 'Proxyserver für die API-Verbindung',
