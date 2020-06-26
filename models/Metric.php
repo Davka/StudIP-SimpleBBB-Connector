@@ -188,7 +188,7 @@ class Metric extends SimpleORMap
 
         if ($filter !== '') {
             $result = self::getFilter($filter);
-            [$begin, $end] = $result;
+            list($begin, $end) = $result;
         }
 
         if ($begin && $end) {
