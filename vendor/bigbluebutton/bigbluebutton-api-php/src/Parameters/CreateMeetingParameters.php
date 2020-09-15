@@ -194,6 +194,11 @@ class CreateMeetingParameters extends MetaParameters
     private $freeJoin;
 
     /**
+     * @var string
+     */
+    private $guestPolicy = 'ALWAYS_ACCEPT';
+
+    /**
      * CreateMeetingParameters constructor.
      *
      * @param $meetingId
@@ -781,7 +786,7 @@ class CreateMeetingParameters extends MetaParameters
 
         return $this;
     }
-    
+
     /**
      * @param $recordingReadyCallbackUrl
      * @return CreateMeetingParameters
@@ -896,6 +901,37 @@ class CreateMeetingParameters extends MetaParameters
     }
 
     /**
+     * @param string $guestPolicy
+     * @return $this
+     */
+    public function setGuestPolicy($guestPolicy)
+    {
+        $this->guestPolicy = $guestPolicy;
+
+        return $this;
+    }
+
+    public function getGuestPolicy()
+    {
+        return $this->guestPolicy;
+    }
+
+    public function setAcceptAllwaysPolicy()
+    {
+        return $this->setGuestPolicy('ALWAYS_ACCEPT');
+    }
+
+    public function setAllwaysDenyPolicy()
+    {
+        return $this->setGuestPolicy('ALWAYS_DENY');
+    }
+
+    public function setAskModeratorPolicy()
+    {
+        return $this->setGuestPolicy('ASK_MODERATOR');
+    }
+
+    /**
      * @return mixed
      */
     public function getPresentationsAsXML()
@@ -961,6 +997,7 @@ class CreateMeetingParameters extends MetaParameters
             'lockSettingsLockOnJoin'             => $this->isLockSettingsLockOnJoin() ? 'true' : 'false',
             'lockSettingsLockOnJoinConfigurable' => $this->isLockSettingsLockOnJoinConfigurable() ? 'true' : 'false',
             'allowModsToUnmuteUsers'             => $this->isAllowModsToUnmuteUsers() ? 'true' : 'false',
+            'guestPolicy'                        => $this->guestPolicy
         ];
 
         // Add breakout rooms parameters only if the meeting is a breakout room
