@@ -37,7 +37,7 @@
                     'moderator_password' => $meeting['moderator_pw']
                 ]
             ),
-            _('Das Meeting beitreten'),
+            _('Dem Meeting beitreten'),
             Icon::create('door-enter'),
             ['target' => '_blank']
         )
