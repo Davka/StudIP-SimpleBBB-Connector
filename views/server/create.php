@@ -16,7 +16,7 @@
         <span class="required">
             <?= _('Secret') ?>
         </span>
-        <input type="text" name="secret" value="<?= $server ? htmlReady($server->secret) : '' ?>" required>
+        <input type="text" name="secret" autocomplete="off" value="<?= $server ? htmlReady($server->secret) : '' ?>" required>
     </label>
     <label>
         <?= _('Kategorie') ?>
