@@ -13,7 +13,6 @@ class StatisticsController extends Controller
     {
         parent::before_filter($action, $args);
         Metric::collect();
-
         $this->buildSidebar();
     }
 
@@ -22,13 +21,13 @@ class StatisticsController extends Controller
         Navigation::activateItem('simplebbbconnector/statistics/index');
         PageLayout::setTitle(_('Statistik'));
         $current_month_complete = Metric::getStatistics('current_month');
-        $data                   = ['labels' => array_keys($current_month_complete)];
-        $data['datasets'][]     = $this->buildDataSet(strftime('%B'), $current_month_complete, 'red', 'redDark');
-        $data['datasets'][]     = $this->buildDataSet(_('Diese Woche'), Metric::getStatistics('current_week'), 'blue', 'blueDark');
-        $data['datasets'][]     = $this->buildDataSet(_('Letzte Woche'), Metric::getStatistics('last_week'), 'green', 'greenDark');
-        $data['datasets'][]     = $this->buildDataSet(_('Heute'), Metric::getStatistics('today'), 'yellow', 'yellowDark');
-        $data['datasets'][]     = $this->buildDataSet(_('Gestern'), Metric::getStatistics('yesterday'), 'purple', 'purpleDark');
-        $this->dataset          = json_encode($data);
+        $data = ['labels' => array_keys($current_month_complete)];
+        $data['datasets'][] = $this->buildDataSet(strftime('%B'), $current_month_complete, 'red', 'redDark');
+        $data['datasets'][] = $this->buildDataSet(_('Diese Woche'), Metric::getStatistics('current_week'), 'blue', 'blueDark');
+        $data['datasets'][] = $this->buildDataSet(_('Letzte Woche'), Metric::getStatistics('last_week'), 'green', 'greenDark');
+        $data['datasets'][] = $this->buildDataSet(_('Heute'), Metric::getStatistics('today'), 'yellow', 'yellowDark');
+        $data['datasets'][] = $this->buildDataSet(_('Gestern'), Metric::getStatistics('yesterday'), 'purple', 'purpleDark');
+        $this->dataset = json_encode($data);
         $this->biggest_meetings = Metric::getStatistics('current_month', 'all', 10);
     }
 
@@ -44,13 +43,13 @@ class StatisticsController extends Controller
     public function buildDataSet($label, $data, $border_color, $background_color)
     {
         $set = [
-            'label'       => $label,
-            'data'        => array_map('intval', array_values($data)),
+            'label' => $label,
+            'data' => array_map('intval', array_values($data)),
             'borderWidth' => 1
         ];
 
         for ($i = 0; $i < count($data); $i++) {
-            $set['borderColor'][]     = $this->getColor($border_color);
+            $set['borderColor'][] = $this->getColor($border_color);
             $set['backgroundColor'][] = $this->getColor($background_color);
         }
         return $set;
@@ -58,29 +57,34 @@ class StatisticsController extends Controller
 
     private function getColor($color)
     {
-        $colors = ['redDark'    => 'rgba(255, 99, 132, 0.2)',
-                   'red'        => 'rgba(255, 99, 132, 1)',
-                   'blueDark'   => 'rgba(54, 162, 235, 0.2)',
-                   'blue'       => 'rgba(54, 162, 235, 1)',
-                   'yellowDark' => 'rgba(255, 206, 86, 0.2)',
-                   'yellow'     => 'rgba(255, 206, 86, 1)',
-                   'greenDark'  => 'rgba(75, 192, 192, 0.2)',
-                   'green'      => 'rgba(75, 192, 192, 1)',
-                   'purpleDark' => 'rgba(153, 102, 255, 0.2)',
-                   'purple'     => 'rgba(153, 102, 255, 1)',
-                   'brownDark'  => 'rgba(255, 159, 64, 0.2)',
-                   'brown'      => 'rgba(255, 159, 64, 1)'];
+        $colors = [
+            'redDark' => 'rgba(255, 99, 132, 0.2)',
+            'red' => 'rgba(255, 99, 132, 1)',
+            'blueDark' => 'rgba(54, 162, 235, 0.2)',
+            'blue' => 'rgba(54, 162, 235, 1)',
+            'yellowDark' => 'rgba(255, 206, 86, 0.2)',
+            'yellow' => 'rgba(255, 206, 86, 1)',
+            'greenDark' => 'rgba(75, 192, 192, 0.2)',
+            'green' => 'rgba(75, 192, 192, 1)',
+            'purpleDark' => 'rgba(153, 102, 255, 0.2)',
+            'purple' => 'rgba(153, 102, 255, 1)',
+            'brownDark' => 'rgba(255, 159, 64, 0.2)',
+            'brown' => 'rgba(255, 159, 64, 1)'
+        ];
         return $colors[$color];
     }
 
     private function buildSidebar()
     {
-        $exports = new ExportWidget();
-        $exports->addLink(
-            _('Als CSV herunterladen'),
-            $this->url_for('statistics/export_csv'),
-            Icon::create('file-excel')
+        $template_factory = new Flexi_TemplateFactory(__DIR__ . '/../templates');
+        $template = $template_factory->open('date-export-widget.php');
+        $template->url = $this->url_for('statistics/export_csv');
+        $exports = new SidebarWidget();
+        $exports->setTitle(_('CSV-Export'));
+        $exports->addElement(
+            new WidgetElement($template->render())
         );
+
         Sidebar::Get()->addWidget($exports);
     }
 }

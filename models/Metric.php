@@ -11,6 +11,7 @@ use DateTime;
 use PluginEngine;
 use DBManager;
 use SimpleORMapCollection;
+use Request;
 
 class Metric extends SimpleORMap
 {
@@ -21,7 +22,7 @@ class Metric extends SimpleORMap
         $config['db_table'] = 'bigbluebutton_metrics';
 
         $config['belongs_to']['server'] = [
-            'class_name'  => 'Vec\\BBB\\Server',
+            'class_name' => 'Vec\\BBB\\Server',
             'foreign_key' => 'server_id',
         ];
         parent::configure($config);
@@ -34,10 +35,13 @@ class Metric extends SimpleORMap
 
     public static function getExport()
     {
-        $metrics = self::findBySQL('1 ORDER BY `mkdate`');
+        list($start, $end) = array_map('date_create', [Request::get('from'), Request::get('to')]);
+        $metrics = self::findBySQL(
+            'start_time BETWEEN ? AND ? ORDER BY `mkdate`', [$start->format('Y-m-d H:i:s'), $end->format('Y-m-d H:i:s')]
+        );
         $results = [];
         if (!empty($metrics)) {
-            $results[]                = [
+            $results[] = [
                 'Server',
                 'Meeting-id',
                 'Meeting-Name',
@@ -56,28 +60,28 @@ class Metric extends SimpleORMap
             foreach ($metrics as $metric) {
                 $start_date = '';
                 $start_time = '';
-                $end_date   = '';
-                $end_time   = '';
+                $end_date = '';
+                $end_time = '';
                 if ($metric->start_time) {
-                    $start      = new DateTime($metric->start_time);
+                    $start = new DateTime($metric->start_time);
                     $start_date = $start->format('d.m.Y');
                     $start_time = $start->format('H:i');
                 }
 
-                $result                            = [];
-                $result['server']                  = $metric->server->url;
-                $result['meeting_id']              = $metric->meeting_id;
-                $result['meeting_name']            = $metric->meeting_name;
-                $result['participant_count']       = $metric->participant_count;
-                $result['video_count']             = $metric->video_count;
-                $result['listener_count']          = $metric->listener_count;
+                $result = [];
+                $result['server'] = $metric->server->url;
+                $result['meeting_id'] = $metric->meeting_id;
+                $result['meeting_name'] = $metric->meeting_name;
+                $result['participant_count'] = $metric->participant_count;
+                $result['video_count'] = $metric->video_count;
+                $result['listener_count'] = $metric->listener_count;
                 $result['voice_participant_count'] = $metric->voice_participant_count;
-                $result['is_break_out']            = $metric->is_break_out;
-                $result['start_date']              = $start_date;
-                $result['start_time']              = $start_time;
-                $result['end_date']                = $end_date;
-                $result['end_time']                = $end_time;
-                $result['email']                   = "";
+                $result['is_break_out'] = $metric->is_break_out;
+                $result['start_date'] = $start_date;
+                $result['start_time'] = $start_time;
+                $result['end_date'] = $end_date;
+                $result['end_time'] = $end_time;
+                $result['email'] = "";
                 if ($meeting_plugin_installed) {
                     $username = DBManager::get()->fetchColumn(
                         "SELECT a.username FROM auth_user_md5 a 
@@ -107,7 +111,7 @@ class Metric extends SimpleORMap
         $servers = SimpleORMapCollection::createFromArray(
             Server::findBySQL('1')
         )->orderBy('name');
-        $msgs    = [];
+        $msgs = [];
 
         foreach ($servers as $server) {
             $result = ['server' => $server];
@@ -127,26 +131,26 @@ class Metric extends SimpleORMap
                         $start_time = (new DateTime())
                             ->setTimestamp((int)$meeting->startTime / 1000)
                             ->format(self::BBB_DATETIME_FORMAT);
-                        $end_time   = null;
+                        $end_time = null;
                         if ((int)$meeting->endTime) {
                             $end_time = (new DateTime())
                                 ->setTimestamp((int)$meeting->endTime / 1000)
                                 ->format(self::BBB_DATETIME_FORMAT);
                         }
 
-                        $data   =
+                        $data =
                             [
-                                'server_id'               => $server->id,
-                                'meeting_id'              => (string)$meeting->meetingID,
-                                'meeting_name'            => (string)$meeting->meetingName,
-                                'participant_count'       => (string)$meeting->participantCount,
-                                'video_count'             => (int)$meeting->videoCount,
-                                'listener_count'          => (int)$meeting->listenerCount,
+                                'server_id' => $server->id,
+                                'meeting_id' => (string)$meeting->meetingID,
+                                'meeting_name' => (string)$meeting->meetingName,
+                                'participant_count' => (string)$meeting->participantCount,
+                                'video_count' => (int)$meeting->videoCount,
+                                'listener_count' => (int)$meeting->listenerCount,
                                 'voice_participant_count' => (int)$meeting->voiceParticipantCount,
-                                'moderator_count'         => (int)$meeting->moderatorCount,
-                                'is_break_out'            => (string)$meeting->isBreakout === "true" ? 1 : 0,
-                                'start_time'              => $start_time,
-                                'end_time'                => $end_time,
+                                'moderator_count' => (int)$meeting->moderatorCount,
+                                'is_break_out' => (string)$meeting->isBreakout === "true" ? 1 : 0,
+                                'start_time' => $start_time,
+                                'end_time' => $end_time,
                             ];
                         $metric = self::findOneBySQL('meeting_id = ? AND start_time = ?', [$data['meeting_id'], $data['start_time']]);
                         if (!$metric) {
@@ -188,13 +192,13 @@ class Metric extends SimpleORMap
 
         if ($filter !== '') {
             $result = self::getFilter($filter);
-            list($begin, $end) = $result;
+            [$begin, $end] = $result;
         }
 
         if ($begin && $end) {
-            $sql                       .= ' WHERE start_time BETWEEN :start_time AND :end_time';
+            $sql .= ' WHERE start_time BETWEEN :start_time AND :end_time';
             $attributes[':start_time'] = $begin;
-            $attributes[':end_time']   = $end;
+            $attributes[':end_time'] = $end;
         }
         $sql .= ' ORDER BY `participant_count` DESC, `meeting_name`';
 
