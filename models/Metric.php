@@ -35,7 +35,7 @@ class Metric extends SimpleORMap
 
     public static function getExport()
     {
-        list($start, $end) = array_map('date_create', [Request::get('from'), Request::get('to')]);
+        [$start, $end] = array_map('date_create', [Request::get('from'), Request::get('to')]);
         $metrics = self::findBySQL(
             'start_time BETWEEN ? AND ? ORDER BY `mkdate`', [$start->format('Y-m-d H:i:s'), $end->format('Y-m-d H:i:s')]
         );
@@ -138,16 +138,23 @@ class Metric extends SimpleORMap
                                 ->format(self::BBB_DATETIME_FORMAT);
                         }
 
+                        $meeting_id = (string)$meeting->meetingID;
+                        $meeting_name = (string)$meeting->meetingName;
+                        $participant_count = (string)$meeting->participantCount;
+                        $video_count = (int)$meeting->videoCount;
+                        $listener_count = (int)$meeting->listenerCount;
+                        $voice_participant_count = (int)$meeting->voiceParticipantCount;
+                        $moderator_count = (int)$meeting->moderatorCount;
                         $data =
                             [
                                 'server_id' => $server->id,
-                                'meeting_id' => (string)$meeting->meetingID,
-                                'meeting_name' => (string)$meeting->meetingName,
-                                'participant_count' => (string)$meeting->participantCount,
-                                'video_count' => (int)$meeting->videoCount,
-                                'listener_count' => (int)$meeting->listenerCount,
-                                'voice_participant_count' => (int)$meeting->voiceParticipantCount,
-                                'moderator_count' => (int)$meeting->moderatorCount,
+                                'meeting_id' => $meeting_id,
+                                'meeting_name' => $meeting_name,
+                                'participant_count' => $participant_count,
+                                'video_count' => $video_count,
+                                'listener_count' => $listener_count,
+                                'voice_participant_count' => $voice_participant_count,
+                                'moderator_count' => $moderator_count,
                                 'is_break_out' => (string)$meeting->isBreakout === "true" ? 1 : 0,
                                 'start_time' => $start_time,
                                 'end_time' => $end_time,
@@ -156,7 +163,19 @@ class Metric extends SimpleORMap
                         if (!$metric) {
                             $metric = self::build($data);
                         } else {
-                            $metric->setData($data);
+                            $values = [
+                                'participant_count',
+                                'video_count',
+                                'listener_count',
+                                'voice_participant_count',
+                                'voice_participant_count',
+                                'moderator_count',
+                            ];
+                            foreach($values as $value) {
+                                if((int)$metric->$value <= $$value) {
+                                    $metric->$value = $$value;
+                                }
+                            }
                         }
                         $metric->store();
                     }

@@ -1,6 +1,6 @@
 {
   "name": "simplebbbconnector",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "To use the connector you need the api-informations for your BBB-Server.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "webpack --mode production",
     "dev": "webpack --mode=development --watch",
     "prezip": "npm run build",
-    "zip": "zip -r SimpleBBBConnector-V$npm_package_version.zip assets classes controllers cronjobs migrations vendor models views README.md bootstrap.php SimpleBBBConnector.class.php plugin.manifest"
+    "zip": "zip -r SimpleBBBConnector-V$npm_package_version.zip assets classes controllers cronjobs migrations templates vendor models views README.md bootstrap.php SimpleBBBConnector.class.php plugin.manifest"
   },
   "repository": {
     "type": "git",
