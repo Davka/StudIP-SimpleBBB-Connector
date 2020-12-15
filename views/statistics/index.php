@@ -25,7 +25,7 @@
             </section>
             <? if (!empty($biggest_meetings)) : ?>
                 <table class="default">
-                    <caption><?= sprintf(_('Die größesten Konferezen (im %s)'), strftime('%B')) ?></caption>
+                    <caption><?= sprintf(_('Die größesten Konferenzen (im %s)'), strftime('%B')) ?></caption>
                     <thead>
                         <tr>
                             <th><?= _('Meeting-Name') ?></th>

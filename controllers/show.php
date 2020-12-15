@@ -21,10 +21,14 @@ class ShowController extends Controller
     {
         Navigation::activateItem('/simplebbbconnector/overview/index');
         PageLayout::setTitle(_('Serverübersicht'));
-        $servers = SimpleORMapCollection::createFromArray(
-            Server::findBySQL('1')
-        )->orderBy('name');
-
+        $servers = Server::findBySQL('1');
+        /**
+         * Ugly workround
+         */
+        usort($servers, function($a, $b) {
+            return filter_var($a->name, FILTER_SANITIZE_NUMBER_INT) < filter_var($b->name, FILTER_SANITIZE_NUMBER_INT);
+        });
+        $servers = SimpleCollection::createFromArray($servers);
         $results          = [];
         $all_participants = 0;
         $all_meetings     = 0;
