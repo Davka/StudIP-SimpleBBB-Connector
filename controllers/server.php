@@ -14,6 +14,13 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 
 class ServerController extends Controller
 {
+    public function before_filter(&$action, &$args)
+    {
+        $GLOBALS['perm']->check('root');
+
+        parent::before_filter($action, $args);
+    }
+
     public function add_action()
     {
         PageLayout::setTitle(_('Server hinzufügen'));

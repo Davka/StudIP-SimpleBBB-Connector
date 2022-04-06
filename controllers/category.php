@@ -11,6 +11,8 @@ class CategoryController extends Controller
 {
     public function index_action()
     {
+        $GLOBALS['perm']->check('root');
+
         PageLayout::setTitle(_('Serverkategorien - verwalten'));
         $this->categories = Category::findBySQL('1 ORDER BY `name`');
     }

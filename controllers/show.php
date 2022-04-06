@@ -13,6 +13,8 @@ class ShowController extends Controller
 {
     public function before_filter(&$action, &$args)
     {
+        $GLOBALS['perm']->check('root');
+
         parent::before_filter($action, $args);
         $this->buildSidebar();
     }

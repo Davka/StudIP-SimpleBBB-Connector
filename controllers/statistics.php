@@ -11,6 +11,8 @@ class StatisticsController extends Controller
 {
     public function before_filter(&$action, &$args)
     {
+        $GLOBALS['perm']->check('root');
+
         parent::before_filter($action, $args);
         Metric::collect();
         $this->buildSidebar();
