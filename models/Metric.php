@@ -22,7 +22,7 @@ class Metric extends SimpleORMap
         $config['db_table'] = 'bigbluebutton_metrics';
 
         $config['belongs_to']['server'] = [
-            'class_name' => 'Vec\\BBB\\Server',
+            'class_name' => Server::class,
             'foreign_key' => 'server_id',
         ];
         parent::configure($config);

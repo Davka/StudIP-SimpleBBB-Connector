@@ -15,7 +15,7 @@ class Category extends SimpleORMap
         $config['db_table'] = 'bigbluebutton_category';
 
         $config['has_many']['servers'] = [
-            'class_name'        => 'Vec\\BBB\\Server',
+            'class_name'        => Server::class,
             'assoc_foreign_key' => 'category_id',
         ];
         parent::configure($config);

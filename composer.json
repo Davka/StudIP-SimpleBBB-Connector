@@ -1,11 +1,5 @@
 {
   "require": {
-    "bigbluebutton/bigbluebutton-api-php": "dev-ds-dev"
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:Davka/bigbluebutton-api-php.git"
-    }
-  ]
+    "bigbluebutton/bigbluebutton-api-php": "~2.1"
+  }
 }

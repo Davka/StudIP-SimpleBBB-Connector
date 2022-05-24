@@ -1,4 +1,4 @@
-<table class="default">
+<table class="default nohover">
     <colgroup>
         <col style="width: 50%">
         <col>

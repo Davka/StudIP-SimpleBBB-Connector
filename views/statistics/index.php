@@ -5,23 +5,7 @@
                 <h1><?= sprintf(_('Statistik für %s'), strftime('%B')) ?></h1>
             </header>
             <section>
-                <canvas id="bar-chart" style="width: 100%; height: 400px"></canvas>
-                <script>
-                    var ctx = document.getElementById('bar-chart').getContext('2d')
-                    var myChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: <?= $dataset?>,
-                        options: {
-                            scales: {
-                                yAxes: [{
-                                    ticks: {
-                                        beginAtZero: true
-                                    }
-                                }]
-                            }
-                        }
-                    });
-                </script>
+                <canvas id="bar-chart" style="width: 100%; height: 400px" data-set='<?= $dataset?>'></canvas>
             </section>
             <? if (!empty($biggest_meetings)) : ?>
                 <table class="default">

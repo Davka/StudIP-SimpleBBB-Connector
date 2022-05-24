@@ -1,6 +1,6 @@
 {
   "name": "simplebbbconnector",
-  "version": "1.2.8",
+  "version": "1.4",
   "description": "To use the connector you need the api-informations for your BBB-Server.",
   "main": "index.js",
   "scripts": {
@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/Davka/StudIP-SimpleBBB-Connector#readme",
   "devDependencies": {
-    "chart.js": "^2.9.3",
-    "webpack": "4.43.0",
-    "webpack-dev-server": "3.11.0",
+    "chart.js": "^3.7.1",
+    "webpack": "^5.72.*",
+    "webpack-dev-server": "^4.9.*",
     "websocket-extensions": ">=0.1.4"
   },
   "browserslist": [
@@ -31,6 +31,6 @@
     "safari >= 7"
   ],
   "dependencies": {
-    "chartjs-plugin-datalabels": "^0.7.0"
+    "chartjs-plugin-datalabels": "^2.0.0"
   }
 }
