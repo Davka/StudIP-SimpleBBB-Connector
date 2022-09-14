@@ -1,6 +1,6 @@
 {
   "name": "simplebbbconnector",
-  "version": "1.4",
+  "version": "1.4.1",
   "description": "To use the connector you need the api-informations for your BBB-Server.",
   "main": "index.js",
   "scripts": {
