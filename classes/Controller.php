@@ -8,9 +8,19 @@ namespace Vec\BBB;
 
 use PluginController;
 use Request;
+use AccessDeniedException;
 
 class Controller extends PluginController
 {
+    public function before_filter(&$action, &$args)
+    {
+        parent::before_filter($action, $args);
+
+        if (!$this->plugin->isAdmin()) {
+            throw new AccessDeniedException();
+        }
+    }
+
     public function render_template($template_name, $layout = null)
     {
         $layout_file = Request::isXhr()
@@ -22,4 +32,3 @@ class Controller extends PluginController
         parent::render_template($template_name, $layout);
     }
 }
-

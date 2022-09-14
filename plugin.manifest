@@ -1,6 +1,6 @@
 pluginname=SimpleBBB-Connector
 pluginclassname=SimpleBBBConnector
 origin=Vec
-version=1.4
+version=1.4.1
 studipMinVersion=4.2
 studipMaxVersion=5.3.99
