@@ -21,12 +21,8 @@ final class AddAdminRole extends Migration
             ':role_id' => $role_id,
             ':status'  => 'root',
         ]);
-        RolePersistence::expireRolesCache();
 
-        $users = User::findBySQL("perms = 'root'");
-        foreach($users as $user) {
-            RolePersistence::expireUserCache($user->id);
-        }
+        $this->expireCache();
     }
 
     public function down()
@@ -39,11 +35,18 @@ final class AddAdminRole extends Migration
 
             RolePersistence::deleteRole($role);
         }
-        RolePersistence::expireRolesCache();
+        $this->expireCache();
+    }
 
-        $users = User::findBySQL("perms = 'root'");
-        foreach($users as $user) {
-            RolePersistence::expireUserCache($user->id);
+
+    private function expireCache()
+    {
+        if (StudipVersion::newerThan('4.6')) {
+            RolePersistence::expireRolesCache();
+            $users = User::findBySQL("perms = 'root'");
+            foreach ($users as $user) {
+                RolePersistence::expireUserCache($user->id);
+            }
         }
     }
 }
